@@ -13,9 +13,10 @@ int main() {
 	// cpu_step(&cpu);
 	// cpu_step(&cpu);
 	
+	// Super simple IO + sleep test program I wrote a while back
 	cpu.inst[0] = 0x0A08;  // GOTO [8]
 	cpu.inst[1] = 0x0800;  // RETLW 0   (This and below seem to have been automatically inserted into the program)
-	cpu.inst[2] = 0x0800;  // RETLW 0   (Maybe as some sort of padding? Idk)
+	cpu.inst[2] = 0x0800;  // RETLW 0   (by the assembler. Maybe as some sort of padding? Idk but they're here now)
 	cpu.inst[3] = 0x0C07;  // MOVLW 7
 	cpu.inst[4] = 0x0002;  // OPTION
 	cpu.inst[5] = 0x0C01;  // MOVLW 1

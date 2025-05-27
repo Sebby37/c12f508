@@ -58,7 +58,7 @@ void cpu_setreg(CPU *cpu, byte r, byte value)
             cpu->pc = value;
             return;
         case STATUS: // Bits <4:3> are not writable
-            cpu->f[STATUS] = value & 0xE7;
+            cpu->f[STATUS] = value & 0xE7; // Switch this to a mask at somepoint, this just overwrites <4:3> with 0s
             return;
     }
     
