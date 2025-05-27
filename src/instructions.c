@@ -128,6 +128,7 @@ void decode_and_dispatch(CPU *cpu)
             goto dispatch_end;
         case CALL:
             inst_CALL(cpu,k);
+            cpu->cycles++; // CALL takes 2 cycles
             goto dispatch_end;
         case IORLW:
             inst_IORLW(cpu,k);
@@ -145,6 +146,7 @@ void decode_and_dispatch(CPU *cpu)
     // And goto with it's 3-bit length opcode
     if (goto_opcode == GOTO) {
         inst_GOTO(cpu,goto_k);
+        cpu->cycles++; // GOTO also takes 2 cycles
         goto dispatch_end;
     }
     // If this is reached, we have an ILLEGAL INSTRUCTION!!!
@@ -155,6 +157,7 @@ void decode_and_dispatch(CPU *cpu)
 // Also goto is a C quirk, I like those :)
 dispatch_end:
     cpu->pc++;
+    cpu->cycles++; // Counting cycles, Chekhov's Gun
     return;
 }
 

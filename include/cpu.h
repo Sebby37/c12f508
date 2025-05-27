@@ -39,6 +39,7 @@ typedef struct CPU {
     iword pc;
     iword *inst;
     bool skipnext;
+    unsigned long cycles;
     
     // (Call) Stack
     iword *stack;

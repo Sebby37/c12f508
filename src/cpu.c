@@ -9,6 +9,7 @@ void cpu_init(CPU *cpu) {
     cpu->pc = 0;
     cpu->inst = malloc(sizeof(iword) * 512);
     cpu->skipnext = false;
+    cpu->cycles = 0;
     
     cpu->stack = malloc(sizeof(iword) * 2);
     cpu->stack_ptr = 0;
