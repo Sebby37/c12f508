@@ -1,0 +1,39 @@
+#include <stdio.h>
+#include "cpu.h"
+
+int main() {
+	CPU cpu;
+	cpu_init(&cpu);
+	cpu.verbose = true;
+	
+	// cpu.w = 50;
+	// cpu.f[13] = 50;
+	// cpu.inst[0] = 0x1cd;
+	// cpu.inst[1] = 0x16d;
+	// cpu_step(&cpu);
+	// cpu_step(&cpu);
+	
+	cpu.inst[0] = 0x0A08;  // GOTO [8]
+	cpu.inst[1] = 0x0800;  // RETLW 0   (This and below seem to have been automatically inserted into the program)
+	cpu.inst[2] = 0x0800;  // RETLW 0   (Maybe as some sort of padding? Idk)
+	cpu.inst[3] = 0x0C07;  // MOVLW 7
+	cpu.inst[4] = 0x0002;  // OPTION
+	cpu.inst[5] = 0x0C01;  // MOVLW 1
+	cpu.inst[6] = 0x0006;  // TRIS GPIO (6)
+	cpu.inst[7] = 0x0800;  // RETLW 0
+	cpu.inst[8] = 0x0903;  // CALL [3]
+	cpu.inst[9] = 0x0526;  // BSF GPIO,1 (6)
+	cpu.inst[10] = 0x0706; // BTFSS GPIO,0 (6)
+	cpu.inst[11] = 0x0A0A; // GOTO 10
+	cpu.inst[12] = 0x0426; // BCF GPIO,1 (6)
+	cpu.inst[13] = 0x0003; // SLEEP
+	
+	for (int i = 0; i < 20; i++)
+	{
+		if (i == 10) cpu_setpin(&cpu, 0, true);
+		if (i == 20) cpu_setpin(&cpu, 0, false);
+		cpu_step(&cpu);
+	}
+	
+	return 0;
+}
