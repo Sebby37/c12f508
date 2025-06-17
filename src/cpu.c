@@ -100,6 +100,8 @@ void cpu_load_hex(CPU *cpu, const char *hex_path)
     // Note I'm not gonna be handling any record types but 0x00 and 0x01
     // The 12f508 doesn't really seem to use the others, so why bother?
     
+    // NOTE: I DON'T THINK THIS WILL WORK FOR A CONFIG WORD!!!
+    
     FILE *file = fopen(hex_path, "r");
     if (file == NULL) 
     {

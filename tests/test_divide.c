@@ -7,7 +7,7 @@ int main() {
 	cpu.verbose = true;
     
     cpu_load_hex(&cpu, "divide/divide-12f508.HEX");
-    cpu_setbreakpoint(&cpu, 50);
+    cpu_setbreakpoint(&cpu, 20);
     cpu_run(&cpu);
     
     int numerator = cpu.f[0x0A];
