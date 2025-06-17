@@ -489,7 +489,7 @@ void inst_BCF(CPU *cpu, byte f, byte b)
     
     // Verbosity!
     if (cpu->verbose)
-        printf("[%03u] BCF: f=0x%02x(%02x), b=%u, result=%u\n", 
+        printf("[%03u] BCF: f=0x%02x(%u), b=%u, result=%u\n", 
                 cpu->pc, f, cpu_getreg(cpu,f), b, result);
     
     // Store

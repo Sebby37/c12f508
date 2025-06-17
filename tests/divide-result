@@ -1,0 +1,180 @@
+Num bytes: 02
+Address: 0000
+Record type: 04
+Num bytes: 10
+Address: 0000
+Record type: 00
+Instruction 0: 0a29
+Instruction 1: 020a
+Instruction 2: 0028
+Instruction 3: 0067
+Instruction 4: 0209
+Instruction 5: 0088
+Instruction 6: 0703
+Instruction 7: 0a0b
+Num bytes: 10
+Address: 0008
+Record type: 00
+Instruction 8: 0028
+Instruction 9: 02a7
+Instruction 10: 0a04
+Instruction 11: 0800
+Instruction 12: 0067
+Instruction 13: 0068
+Instruction 14: 0c07
+Instruction 15: 002b
+Num bytes: 10
+Address: 0010
+Record type: 00
+Instruction 16: 0c80
+Instruction 17: 002c
+Instruction 18: 0403
+Instruction 19: 0368
+Instruction 20: 020a
+Instruction 21: 002e
+Instruction 22: 020b
+Instruction 23: 002d
+Num bytes: 10
+Address: 0018
+Record type: 00
+Instruction 24: 0403
+Instruction 25: 032e
+Instruction 26: 02ed
+Instruction 27: 0a18
+Instruction 28: 020e
+Instruction 29: 0e01
+Instruction 30: 0128
+Instruction 31: 0703
+Num bytes: 10
+Address: 0020
+Record type: 00
+Instruction 32: 0a24
+Instruction 33: 0028
+Instruction 34: 020c
+Instruction 35: 0127
+Instruction 36: 0403
+Instruction 37: 032c
+Instruction 38: 02eb
+Instruction 39: 0a12
+Num bytes: 0c
+Address: 0028
+Record type: 00
+Instruction 40: 0800
+Instruction 41: 0c0b
+Instruction 42: 002a
+Instruction 43: 0c03
+Instruction 44: 0029
+Instruction 45: 0901
+Num bytes: 00
+Address: 0000
+Record type: 01
+Fetch: pc=0, inst=0xa29, byte_opcode=0xa00, blit_opcode=0xa00, dest=1(f), f=9, bit=1, k=41
+[000] GOTO: k=41
+Fetch: pc=41, inst=0xc0b, byte_opcode=0xc00, blit_opcode=0xc00, dest=0(w), f=11, bit=0, k=11
+[041] MOVLW: w=0, k=11
+Fetch: pc=42, inst=0x02a, byte_opcode=0x000, blit_opcode=0x000, dest=1(f), f=10, bit=1, k=42
+[042] MOVWF: f=0x0a(0), w=11
+Fetch: pc=43, inst=0xc03, byte_opcode=0xc00, blit_opcode=0xc00, dest=0(w), f=3, bit=0, k=3
+[043] MOVLW: w=11, k=3
+Fetch: pc=44, inst=0x029, byte_opcode=0x000, blit_opcode=0x000, dest=1(f), f=9, bit=1, k=41
+[044] MOVWF: f=0x09(0), w=3
+Fetch: pc=45, inst=0x901, byte_opcode=0x900, blit_opcode=0x900, dest=0(w), f=1, bit=0, k=1
+[045] CALL: k(addr)=1, stack_ptr=0, stack[0]=0, stack[1]=0
+Fetch: pc=1, inst=0x20a, byte_opcode=0x200, blit_opcode=0x200, dest=0(w), f=10, bit=0, k=10
+[001] MOVF: f=0x0a(11), w=3, d=0(w), result=11
+Fetch: pc=2, inst=0x028, byte_opcode=0x000, blit_opcode=0x000, dest=1(f), f=8, bit=1, k=40
+[002] MOVWF: f=0x08(0), w=11
+Fetch: pc=3, inst=0x067, byte_opcode=0x040, blit_opcode=0x000, dest=1(f), f=7, bit=3, k=103
+[003] CLRF: f=0x07(0), w=11
+Fetch: pc=4, inst=0x209, byte_opcode=0x200, blit_opcode=0x200, dest=0(w), f=9, bit=0, k=9
+[004] MOVF: f=0x09(3), w=11, d=0(w), result=3
+Fetch: pc=5, inst=0x088, byte_opcode=0x080, blit_opcode=0x000, dest=0(w), f=8, bit=4, k=136
+[005] SUBWF: f=0x08(11), w=3, d=0(w), result=8
+Fetch: pc=6, inst=0x703, byte_opcode=0x700, blit_opcode=0x700, dest=0(w), f=3, bit=0, k=3
+[006] BTFSS: f=0x03(1b), b=0
+[007] NOP
+Fetch: pc=8, inst=0x028, byte_opcode=0x000, blit_opcode=0x000, dest=1(f), f=8, bit=1, k=40
+[008] MOVWF: f=0x08(11), w=8
+Fetch: pc=9, inst=0x2a7, byte_opcode=0x280, blit_opcode=0x200, dest=1(f), f=7, bit=5, k=167
+[009] INCF: f=0x07(0), w=8, d=1(f), result=1
+Fetch: pc=10, inst=0xa04, byte_opcode=0xa00, blit_opcode=0xa00, dest=0(w), f=4, bit=0, k=4
+[010] GOTO: k=4
+Fetch: pc=4, inst=0x209, byte_opcode=0x200, blit_opcode=0x200, dest=0(w), f=9, bit=0, k=9
+[004] MOVF: f=0x09(3), w=8, d=0(w), result=3
+Fetch: pc=5, inst=0x088, byte_opcode=0x080, blit_opcode=0x000, dest=0(w), f=8, bit=4, k=136
+[005] SUBWF: f=0x08(8), w=3, d=0(w), result=5
+Fetch: pc=6, inst=0x703, byte_opcode=0x700, blit_opcode=0x700, dest=0(w), f=3, bit=0, k=3
+[006] BTFSS: f=0x03(1b), b=0
+[007] NOP
+Fetch: pc=8, inst=0x028, byte_opcode=0x000, blit_opcode=0x000, dest=1(f), f=8, bit=1, k=40
+[008] MOVWF: f=0x08(8), w=5
+Fetch: pc=9, inst=0x2a7, byte_opcode=0x280, blit_opcode=0x200, dest=1(f), f=7, bit=5, k=167
+[009] INCF: f=0x07(1), w=5, d=1(f), result=2
+Fetch: pc=10, inst=0xa04, byte_opcode=0xa00, blit_opcode=0xa00, dest=0(w), f=4, bit=0, k=4
+[010] GOTO: k=4
+Fetch: pc=4, inst=0x209, byte_opcode=0x200, blit_opcode=0x200, dest=0(w), f=9, bit=0, k=9
+[004] MOVF: f=0x09(3), w=5, d=0(w), result=3
+Fetch: pc=5, inst=0x088, byte_opcode=0x080, blit_opcode=0x000, dest=0(w), f=8, bit=4, k=136
+[005] SUBWF: f=0x08(5), w=3, d=0(w), result=2
+Fetch: pc=6, inst=0x703, byte_opcode=0x700, blit_opcode=0x700, dest=0(w), f=3, bit=0, k=3
+[006] BTFSS: f=0x03(1b), b=0
+[007] NOP
+Fetch: pc=8, inst=0x028, byte_opcode=0x000, blit_opcode=0x000, dest=1(f), f=8, bit=1, k=40
+[008] MOVWF: f=0x08(5), w=2
+Fetch: pc=9, inst=0x2a7, byte_opcode=0x280, blit_opcode=0x200, dest=1(f), f=7, bit=5, k=167
+[009] INCF: f=0x07(2), w=2, d=1(f), result=3
+Fetch: pc=10, inst=0xa04, byte_opcode=0xa00, blit_opcode=0xa00, dest=0(w), f=4, bit=0, k=4
+[010] GOTO: k=4
+Fetch: pc=4, inst=0x209, byte_opcode=0x200, blit_opcode=0x200, dest=0(w), f=9, bit=0, k=9
+[004] MOVF: f=0x09(3), w=2, d=0(w), result=3
+Fetch: pc=5, inst=0x088, byte_opcode=0x080, blit_opcode=0x000, dest=0(w), f=8, bit=4, k=136
+[005] SUBWF: f=0x08(2), w=3, d=0(w), result=255
+Fetch: pc=6, inst=0x703, byte_opcode=0x700, blit_opcode=0x700, dest=0(w), f=3, bit=0, k=3
+[006] BTFSS: f=0x03(18), b=0
+Fetch: pc=7, inst=0xa0b, byte_opcode=0xa00, blit_opcode=0xa00, dest=0(w), f=11, bit=0, k=11
+[007] GOTO: k=11
+Fetch: pc=11, inst=0x800, byte_opcode=0x800, blit_opcode=0x800, dest=0(w), f=0, bit=0, k=0
+[011] RETLW: k(new w)=0, TOS=46, stack_ptr=1, stack[0]=46, stack[1]=0
+Fetch: pc=46, inst=0x000, byte_opcode=0x000, blit_opcode=0x000, dest=0(w), f=0, bit=0, k=0
+[046] NOP
+Fetch: pc=47, inst=0x000, byte_opcode=0x000, blit_opcode=0x000, dest=0(w), f=0, bit=0, k=0
+[047] NOP
+Fetch: pc=48, inst=0x000, byte_opcode=0x000, blit_opcode=0x000, dest=0(w), f=0, bit=0, k=0
+[048] NOP
+Fetch: pc=49, inst=0x000, byte_opcode=0x000, blit_opcode=0x000, dest=0(w), f=0, bit=0, k=0
+[049] NOP
+Breakpoint reached at pc=50!
+The result of 11/3 = 3 with remainder 2
+Registers:
+[0]: 0/00
+[1]: 0/00
+[2]: 50/0x32
+[3]: 24/0x18
+[4]: 224/0xe0
+[5]: 254/0xfe
+[6]: 0/00
+[7]: 3/0x3
+[8]: 2/0x2
+[9]: 3/0x3
+[10]: 11/0xb
+[11]: 0/00
+[12]: 0/00
+[13]: 0/00
+[14]: 0/00
+[15]: 0/00
+[16]: 0/00
+[17]: 0/00
+[18]: 0/00
+[19]: 0/00
+[20]: 0/00
+[21]: 0/00
+[22]: 0/00
+[23]: 0/00
+[24]: 0/00
+[25]: 0/00
+[26]: 0/00
+[27]: 0/00
+[28]: 0/00
+[29]: 0/00
+[30]: 0/00
+[31]: 0/00

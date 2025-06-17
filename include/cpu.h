@@ -1,5 +1,6 @@
 #pragma once
 #include <stdbool.h>
+#include <stdint.h>
 
 // Special Register Defines!
 #define INDF    0
@@ -59,9 +60,10 @@ void cpu_deinit(CPU *cpu);
 // Registers!
 byte cpu_getreg(CPU *cpu, byte r);
 void cpu_setreg(CPU *cpu, byte r, byte value);
+void cpu_print_registers(CPU *cpu);
 
 // Execution
-void cpu_load_program(CPU *cpu, const iword *program, int size);
+void cpu_load_hex(CPU *cpu, const char *hex_path);
 void cpu_step(CPU *cpu);
 
 // INFINITE EXECUTION

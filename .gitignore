@@ -1,4 +1,12 @@
 .vscode
+# Executables
 a.out
+main
+tests/test_divide
+tests/test_sleepled
+# Assembled files that we don't need
+**.ERR
+**.O
+**.LST
 # Don't worry about it :)
 stuff
