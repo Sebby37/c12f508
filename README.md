@@ -7,18 +7,18 @@ see the todo just below for what (I think) needs to be done before it's fully fu
 - [X] Setup the project (idk I'm writing this with all of the crossed out stuff done at the moment)
 - [X] Implement every instruction (except SLEEP and CLRWDT)
 - [X] Cycle counting
+- [X] HEX file reading (see tests/test_divide.c)
 - [ ] Proper reset function(s) + functionality
+- [ ] Proper pin IO functions
 - [ ] Watchdog timer functionality (+ CLRWDT)
 - [ ] timer0 functionality
+- [ ] Configuration word being acknowledged (kinda requires all of the above)
 - [ ] SLEEP instruction
-- [ ] Proper pin IO functions
-- [ ] Configuration word being acknowledged
 - [ ] Make it thread-safe!
-- [ ] HEX file reading
 - [ ] Better makefile or even CMake
 
 ## Future plans that maybe might just potentially happen
-- Full main program that can debug and such
+- Full main program that can debug and such with a CLI interface
 - Some way of specifying pin configurations through JSON or something similar
 - A GUI of some kind, similar to the Nand2Tetris CPU emulator
 
