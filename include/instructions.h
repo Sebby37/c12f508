@@ -44,40 +44,40 @@
 void decode_and_dispatch(CPU *cpu);
 
 // Byte-level Instructions
-void inst_ADDWF(CPU *cpu, byte f, byte d);
-void inst_ANDWF(CPU *cpu, byte f, byte d);
-void inst_CLRF(CPU *cpu, byte f);
+void inst_ADDWF(CPU *cpu, uint8_t f, uint8_t d);
+void inst_ANDWF(CPU *cpu, uint8_t f, uint8_t d);
+void inst_CLRF(CPU *cpu, uint8_t f);
 void inst_CLRW(CPU *cpu);
-void inst_COMF(CPU *cpu, byte f, byte d);
-void inst_DECF(CPU *cpu, byte f, byte d);
-void inst_DECFSZ(CPU *cpu, byte f, byte d);
-void inst_INCF(CPU *cpu, byte f, byte d);
-void inst_INCFSZ(CPU *cpu, byte f, byte d);
-void inst_IORWF(CPU *cpu, byte f, byte d);
-void inst_MOVF(CPU *cpu, byte f, byte d);
-void inst_MOVWF(CPU *cpu, byte f);
+void inst_COMF(CPU *cpu, uint8_t f, uint8_t d);
+void inst_DECF(CPU *cpu, uint8_t f, uint8_t d);
+void inst_DECFSZ(CPU *cpu, uint8_t f, uint8_t d);
+void inst_INCF(CPU *cpu, uint8_t f, uint8_t d);
+void inst_INCFSZ(CPU *cpu, uint8_t f, uint8_t d);
+void inst_IORWF(CPU *cpu, uint8_t f, uint8_t d);
+void inst_MOVF(CPU *cpu, uint8_t f, uint8_t d);
+void inst_MOVWF(CPU *cpu, uint8_t f);
 void inst_NOP(CPU *cpu);
-void inst_RLF(CPU *cpu, byte f, byte d);
-void inst_RRF(CPU *cpu, byte f, byte d);
-void inst_SUBWF(CPU *cpu, byte f, byte d);
-void inst_SWAPF(CPU *cpu, byte f, byte d);
-void inst_XORWF(CPU *cpu, byte f, byte d);
+void inst_RLF(CPU *cpu, uint8_t f, uint8_t d);
+void inst_RRF(CPU *cpu, uint8_t f, uint8_t d);
+void inst_SUBWF(CPU *cpu, uint8_t f, uint8_t d);
+void inst_SWAPF(CPU *cpu, uint8_t f, uint8_t d);
+void inst_XORWF(CPU *cpu, uint8_t f, uint8_t d);
 
 // Bit-level Instructions
-void inst_BCF(CPU *cpu, byte f, byte b);
-void inst_BSF(CPU *cpu, byte f, byte b);
-void inst_BTFSC(CPU *cpu, byte f, byte b);
-void inst_BTFSS(CPU *cpu, byte f, byte b);
+void inst_BCF(CPU *cpu, uint8_t f, uint8_t b);
+void inst_BSF(CPU *cpu, uint8_t f, uint8_t b);
+void inst_BTFSC(CPU *cpu, uint8_t f, uint8_t b);
+void inst_BTFSS(CPU *cpu, uint8_t f, uint8_t b);
 
 // Literal & Control Instructions
-void inst_ANDLW(CPU *cpu, byte k);
-void inst_CALL(CPU *cpu, byte k);
+void inst_ANDLW(CPU *cpu, uint8_t k);
+void inst_CALL(CPU *cpu, uint8_t k);
 void inst_CLRWDT(CPU *cpu);
-void inst_GOTO(CPU *cpu, iword k);
-void inst_IORLW(CPU *cpu, byte k);
-void inst_MOVLW(CPU *cpu, byte k);
+void inst_GOTO(CPU *cpu, uint16_t k);
+void inst_IORLW(CPU *cpu, uint8_t k);
+void inst_MOVLW(CPU *cpu, uint8_t k);
 void inst_OPTION(CPU *cpu);
-void inst_RETLW(CPU *cpu, byte k);
+void inst_RETLW(CPU *cpu, uint8_t k);
 void inst_SLEEP(CPU *cpu);
-void inst_TRIS(CPU *cpu, byte k);
-void inst_XORLW(CPU *cpu, byte k);
+void inst_TRIS(CPU *cpu, uint8_t k);
+void inst_XORLW(CPU *cpu, uint8_t k);

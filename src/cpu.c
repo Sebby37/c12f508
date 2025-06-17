@@ -8,15 +8,15 @@ void cpu_init(CPU *cpu) {
     cpu->breakpoint = -1;
     
     cpu->pc = 0;
-    cpu->inst = malloc(sizeof(iword) * 512);
+    cpu->inst = malloc(sizeof(uint16_t) * 512);
     cpu->skipnext = false;
     cpu->cycles = 0;
     
-    cpu->stack = malloc(sizeof(iword) * 2);
+    cpu->stack = malloc(sizeof(uint16_t) * 2);
     cpu->stack_ptr = 0;
     
     cpu->w = 0;
-    cpu->f = malloc(sizeof(iword) * 32);
+    cpu->f = malloc(sizeof(uint16_t) * 32);
     
     // Special registers    Value on POR
     cpu->f[PCL] =    0xFF; // 1111 1111
@@ -34,7 +34,7 @@ void cpu_deinit(CPU *cpu) {
     free(cpu->f);
 }
 
-byte cpu_getreg(CPU *cpu, byte r)
+uint8_t cpu_getreg(CPU *cpu, uint8_t r)
 {
     // Not-so regular cases
     switch (r) {
@@ -53,7 +53,7 @@ byte cpu_getreg(CPU *cpu, byte r)
     return cpu->f[r];
 }
 
-void cpu_setreg(CPU *cpu, byte r, byte value)
+void cpu_setreg(CPU *cpu, uint8_t r, uint8_t value)
 {
     switch (r) {
         case PCL: // Instructions that write to the PC set the 9th bit to 0 (except GOTO)
@@ -82,7 +82,7 @@ void cpu_print_registers(CPU *cpu)
 }
 
 
-static byte _read_hex_byte(FILE *file_ptr)
+static uint8_t _read_hex_byte(FILE *file_ptr)
 {
     char high = fgetc(file_ptr) - '0';
     char low  = fgetc(file_ptr) - '0';
@@ -132,7 +132,7 @@ void cpu_load_hex(CPU *cpu, const char *hex_path)
         // Actually read the data now
         for (int i = 0; i < num_bytes/2; i++)
         {
-            iword instruction = _read_hex_byte(file) | (_read_hex_byte(file) << 8);
+            uint16_t instruction = _read_hex_byte(file) | (_read_hex_byte(file) << 8);
             if (cpu->verbose) printf("Instruction %d: %04x\n", address+i, instruction);
             cpu->inst[address+i] = instruction;
         }
@@ -179,7 +179,7 @@ void cpu_run(CPU *cpu)
     }
 }
 
-byte cpu_getgpio(CPU *cpu)
+uint8_t cpu_getgpio(CPU *cpu)
 {
     return cpu->f[GPIO];
 }
@@ -190,7 +190,7 @@ bool cpu_getpin(CPU *cpu, int pin)
 }
 
 
-void cpu_setgpio(CPU *cpu, byte newgpio)
+void cpu_setgpio(CPU *cpu, uint8_t newgpio)
 {
     // I'd like a mutex someday :)
     cpu->f[GPIO] = newgpio;
@@ -198,7 +198,7 @@ void cpu_setgpio(CPU *cpu, byte newgpio)
 
 void cpu_setpin(CPU *cpu, int pin, bool set)
 {
-    byte gpio = cpu_getgpio(cpu);
+    uint8_t gpio = cpu_getgpio(cpu);
     gpio &= ~(0x1 << pin);
     gpio |= set << pin;
     cpu_setgpio(cpu, gpio);

@@ -4,7 +4,7 @@
 void decode_and_dispatch(CPU *cpu)
 {
     // Fetch
-    iword instruction = cpu->inst[cpu->pc] & 0xFFF;
+    uint16_t instruction = cpu->inst[cpu->pc] & 0xFFF;
     
     // Skip if skip
     if (cpu->skipnext)
@@ -15,16 +15,16 @@ void decode_and_dispatch(CPU *cpu)
     }
     
     // Decode opcodes
-    iword byte_opcode = instruction & 0xFC0;
-    iword blit_opcode = instruction & 0xF00; // Also for non-GOTO literals
-    iword goto_opcode = instruction & 0xE00;
+    uint16_t byte_opcode = instruction & 0xFC0;
+    uint16_t blit_opcode = instruction & 0xF00; // Also for non-GOTO literals
+    uint16_t goto_opcode = instruction & 0xE00;
     
     // Decode other vars
-    byte d = (instruction >> 5) & 0x01;
-    byte f =  instruction       & 0x1F;
-    byte b = (instruction >> 5) & 0x07;
-    byte k =  instruction       & 0xFF;
-    iword goto_k = instruction  & 0x1FF;
+    uint8_t d = (instruction >> 5) & 0x01;
+    uint8_t f =  instruction       & 0x1F;
+    uint8_t b = (instruction >> 5) & 0x07;
+    uint8_t k =  instruction       & 0xFF;
+    uint16_t goto_k = instruction  & 0x1FF;
     
     // Verbosity!
     if (cpu->verbose)
@@ -163,12 +163,12 @@ dispatch_end:
 
 // Byte-level Instructions
 
-void inst_ADDWF(CPU *cpu, byte f, byte d)
+void inst_ADDWF(CPU *cpu, uint8_t f, uint8_t d)
 {
     // Compute
-    byte w_val = cpu->w;
-    byte f_val = cpu_getreg(cpu,f);
-    byte result = w_val + f_val;
+    uint8_t w_val = cpu->w;
+    uint8_t f_val = cpu_getreg(cpu,f);
+    uint8_t result = w_val + f_val;
     
     // Verbosity!
     if (cpu->verbose)
@@ -189,10 +189,10 @@ void inst_ADDWF(CPU *cpu, byte f, byte d)
     else        cpu_setreg(cpu, f, result);
 }
 
-void inst_ANDWF(CPU *cpu, byte f, byte d)
+void inst_ANDWF(CPU *cpu, uint8_t f, uint8_t d)
 {
     // Compute
-    byte result = cpu->w & cpu_getreg(cpu,f);
+    uint8_t result = cpu->w & cpu_getreg(cpu,f);
     
     // Verbosity!
     if (cpu->verbose)
@@ -208,7 +208,7 @@ void inst_ANDWF(CPU *cpu, byte f, byte d)
     else        cpu_setreg(cpu, f, result);
 }
 
-void inst_CLRF(CPU *cpu, byte f)
+void inst_CLRF(CPU *cpu, uint8_t f)
 {
     // Verbosity!
     if (cpu->verbose)
@@ -232,10 +232,10 @@ void inst_CLRW(CPU *cpu)
     cpu->f[STATUS] |= Z;
 }
 
-void inst_COMF(CPU *cpu, byte f, byte d)
+void inst_COMF(CPU *cpu, uint8_t f, uint8_t d)
 {
     // Compute
-    byte result = ~cpu_getreg(cpu,f);
+    uint8_t result = ~cpu_getreg(cpu,f);
     
     // Verbosity!
     if (cpu->verbose)
@@ -251,10 +251,10 @@ void inst_COMF(CPU *cpu, byte f, byte d)
     else        cpu_setreg(cpu, f, result);
 }
 
-void inst_DECF(CPU *cpu, byte f, byte d)
+void inst_DECF(CPU *cpu, uint8_t f, uint8_t d)
 {
     // Compute
-    byte result = cpu_getreg(cpu,f) - 1;
+    uint8_t result = cpu_getreg(cpu,f) - 1;
     
     // Verbosity!
     if (cpu->verbose)
@@ -270,10 +270,10 @@ void inst_DECF(CPU *cpu, byte f, byte d)
     else        cpu_setreg(cpu, f, result);
 }
 
-void inst_DECFSZ(CPU *cpu, byte f, byte d)
+void inst_DECFSZ(CPU *cpu, uint8_t f, uint8_t d)
 {
     // Compute
-    byte result = cpu_getreg(cpu,f) - 1;
+    uint8_t result = cpu_getreg(cpu,f) - 1;
     
     // Verbosity!
     if (cpu->verbose)
@@ -288,10 +288,10 @@ void inst_DECFSZ(CPU *cpu, byte f, byte d)
     if (result == 0) cpu->skipnext = true;
 }
 
-void inst_INCF(CPU *cpu, byte f, byte d)
+void inst_INCF(CPU *cpu, uint8_t f, uint8_t d)
 {
     // Compute
-    byte result = cpu_getreg(cpu,f) + 1;
+    uint8_t result = cpu_getreg(cpu,f) + 1;
     
     // Verbosity!
     if (cpu->verbose)
@@ -307,10 +307,10 @@ void inst_INCF(CPU *cpu, byte f, byte d)
     else        cpu_setreg(cpu, f, result);
 }
 
-void inst_INCFSZ(CPU *cpu, byte f, byte d)
+void inst_INCFSZ(CPU *cpu, uint8_t f, uint8_t d)
 {
     // Compute
-    byte result = cpu_getreg(cpu,f) + 1;
+    uint8_t result = cpu_getreg(cpu,f) + 1;
     
     // Verbosity!
     if (cpu->verbose)
@@ -325,10 +325,10 @@ void inst_INCFSZ(CPU *cpu, byte f, byte d)
     if (result == 0) cpu->skipnext = true;
 }
 
-void inst_IORWF(CPU *cpu, byte f, byte d)
+void inst_IORWF(CPU *cpu, uint8_t f, uint8_t d)
 {
     // Compute
-    byte result = cpu->w | cpu_getreg(cpu,f);
+    uint8_t result = cpu->w | cpu_getreg(cpu,f);
     
     // Verbosity!
     if (cpu->verbose)
@@ -344,10 +344,10 @@ void inst_IORWF(CPU *cpu, byte f, byte d)
     else        cpu_setreg(cpu, f, result);
 }
 
-void inst_MOVF(CPU *cpu, byte f, byte d)
+void inst_MOVF(CPU *cpu, uint8_t f, uint8_t d)
 {
     // Compute (not much here really lol)
-    byte result = cpu_getreg(cpu,f);
+    uint8_t result = cpu_getreg(cpu,f);
     
     // Verbosity!
     if (cpu->verbose)
@@ -363,7 +363,7 @@ void inst_MOVF(CPU *cpu, byte f, byte d)
     else        cpu_setreg(cpu, f, result);
 }
 
-void inst_MOVWF(CPU *cpu, byte f)
+void inst_MOVWF(CPU *cpu, uint8_t f)
 {
     // Verbosity!
     if (cpu->verbose)
@@ -383,10 +383,10 @@ void inst_NOP(CPU *cpu)
     // What is this, some kind of No Operation?
 }
 
-void inst_RLF(CPU *cpu, byte f, byte d)
+void inst_RLF(CPU *cpu, uint8_t f, uint8_t d)
 {
     // Compute + set carry bit
-    byte result = cpu_getreg(cpu,f);
+    uint8_t result = cpu_getreg(cpu,f);
     cpu->f[STATUS] &= ~C;
     if (result >> 7 == 1) cpu->f[STATUS] |= C;
     result <<= 1;
@@ -401,10 +401,10 @@ void inst_RLF(CPU *cpu, byte f, byte d)
     else        cpu_setreg(cpu, f, result);
 }
 
-void inst_RRF(CPU *cpu, byte f, byte d)
+void inst_RRF(CPU *cpu, uint8_t f, uint8_t d)
 {
     // Compute + set carry bit
-    byte result = cpu_getreg(cpu,f);
+    uint8_t result = cpu_getreg(cpu,f);
     cpu->f[STATUS] &= ~C;
     if (result & 0x01 == 1) cpu->f[STATUS] |= C;
     result >>= 1;
@@ -419,12 +419,12 @@ void inst_RRF(CPU *cpu, byte f, byte d)
     else        cpu_setreg(cpu, f, result);
 }
 
-void inst_SUBWF(CPU *cpu, byte f, byte d)
+void inst_SUBWF(CPU *cpu, uint8_t f, uint8_t d)
 {
     // Compute
-    byte w_val = cpu->w;
-    byte f_val = cpu_getreg(cpu,f);
-    byte result = f_val - w_val;
+    uint8_t w_val = cpu->w;
+    uint8_t f_val = cpu_getreg(cpu,f);
+    uint8_t result = f_val - w_val;
     
     // Verbosity!
     if (cpu->verbose)
@@ -445,10 +445,10 @@ void inst_SUBWF(CPU *cpu, byte f, byte d)
     else        cpu_setreg(cpu, f, result);
 }
 
-void inst_SWAPF(CPU *cpu, byte f, byte d)
+void inst_SWAPF(CPU *cpu, uint8_t f, uint8_t d)
 {
     // Compute
-    byte result = cpu_getreg(cpu,f);
+    uint8_t result = cpu_getreg(cpu,f);
     result = (result << 4) | ((result & 0xF0) >> 4);
     
     // Verbosity!
@@ -461,10 +461,10 @@ void inst_SWAPF(CPU *cpu, byte f, byte d)
     else        cpu_setreg(cpu, f, result);
 }
 
-void inst_XORWF(CPU *cpu, byte f, byte d)
+void inst_XORWF(CPU *cpu, uint8_t f, uint8_t d)
 {
     // Compute
-    byte result = cpu->w ^ cpu_getreg(cpu,f);
+    uint8_t result = cpu->w ^ cpu_getreg(cpu,f);
     
     // Verbosity!
     if (cpu->verbose)
@@ -482,10 +482,10 @@ void inst_XORWF(CPU *cpu, byte f, byte d)
 
 // Bit-level Instructions
 
-void inst_BCF(CPU *cpu, byte f, byte b)
+void inst_BCF(CPU *cpu, uint8_t f, uint8_t b)
 {
     // Compute
-    byte result = cpu_getreg(cpu,f) & ~(1 << b);
+    uint8_t result = cpu_getreg(cpu,f) & ~(1 << b);
     
     // Verbosity!
     if (cpu->verbose)
@@ -496,10 +496,10 @@ void inst_BCF(CPU *cpu, byte f, byte b)
     cpu_setreg(cpu, f, result);
 }
 
-void inst_BSF(CPU *cpu, byte f, byte b)
+void inst_BSF(CPU *cpu, uint8_t f, uint8_t b)
 {
     // Compute
-    byte result = cpu_getreg(cpu,f) | (1 << b);
+    uint8_t result = cpu_getreg(cpu,f) | (1 << b);
     
     // Verbosity!
     if (cpu->verbose)
@@ -510,7 +510,7 @@ void inst_BSF(CPU *cpu, byte f, byte b)
     cpu_setreg(cpu, f, result);
 }
 
-void inst_BTFSC(CPU *cpu, byte f, byte b)
+void inst_BTFSC(CPU *cpu, uint8_t f, uint8_t b)
 {
     // Verbosity!
     if (cpu->verbose)
@@ -522,7 +522,7 @@ void inst_BTFSC(CPU *cpu, byte f, byte b)
         cpu->skipnext = true;
 }
 
-void inst_BTFSS(CPU *cpu, byte f, byte b)
+void inst_BTFSS(CPU *cpu, uint8_t f, uint8_t b)
 {
     // Verbosity!
     if (cpu->verbose)
@@ -536,10 +536,10 @@ void inst_BTFSS(CPU *cpu, byte f, byte b)
 
 // Literal & Control Instructions
 
-void inst_ANDLW(CPU *cpu, byte k)
+void inst_ANDLW(CPU *cpu, uint8_t k)
 {
     // Compute
-    byte result = cpu->w & k;
+    uint8_t result = cpu->w & k;
     
     // Verbosity!
     if (cpu->verbose)
@@ -554,7 +554,7 @@ void inst_ANDLW(CPU *cpu, byte k)
     cpu->w = result;
 }
 
-void inst_CALL(CPU *cpu, byte k) // Two-Cycle
+void inst_CALL(CPU *cpu, uint8_t k) // Two-Cycle
 {
     // Verbosity!
     if (cpu->verbose)
@@ -578,7 +578,7 @@ void inst_CLRWDT(CPU *cpu)
                 cpu->pc);
 }
 
-void inst_GOTO(CPU *cpu, iword k) // Two-Cycle
+void inst_GOTO(CPU *cpu, uint16_t k) // Two-Cycle
 {
     // Verbosity!
     if (cpu->verbose)
@@ -597,10 +597,10 @@ void inst_GOTO(CPU *cpu, iword k) // Two-Cycle
     cpu->pc--;
 }
 
-void inst_IORLW(CPU *cpu, byte k)
+void inst_IORLW(CPU *cpu, uint8_t k)
 {
     // Compute
-    byte result = cpu->w | k;
+    uint8_t result = cpu->w | k;
     
     // Verbosity!
     if (cpu->verbose)
@@ -615,7 +615,7 @@ void inst_IORLW(CPU *cpu, byte k)
     cpu->w = result;
 }
 
-void inst_MOVLW(CPU *cpu, byte k)
+void inst_MOVLW(CPU *cpu, uint8_t k)
 {
     // Verbosity!
     if (cpu->verbose)
@@ -637,7 +637,7 @@ void inst_OPTION(CPU *cpu)
     cpu->option = cpu->w;
 }
 
-void inst_RETLW(CPU *cpu, byte k)
+void inst_RETLW(CPU *cpu, uint8_t k)
 {
     // Verbosity!
     if (cpu->verbose)
@@ -662,7 +662,7 @@ void inst_SLEEP(CPU *cpu)
     // Might just do a POR for now until I figure out how I wanna do sleeps
 }
 
-void inst_TRIS(CPU *cpu, byte k)
+void inst_TRIS(CPU *cpu, uint8_t k)
 {
     // Verbosity!
     if (cpu->verbose)
@@ -674,10 +674,10 @@ void inst_TRIS(CPU *cpu, byte k)
         cpu->trisgpio = k;
 }
 
-void inst_XORLW(CPU *cpu, byte k)
+void inst_XORLW(CPU *cpu, uint8_t k)
 {
     // Compute
-    byte result = cpu->w ^ k;
+    uint8_t result = cpu->w ^ k;
     
     // Verbosity!
     if (cpu->verbose)

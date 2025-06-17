@@ -27,30 +27,26 @@
 #define PSA  3 // Prescaler Assignment bit
 #define PS 0x7 // Prescaler Rate Select bits
 
-// Typedefs baybee!
-typedef unsigned short iword; // Instruction word (technically 12 bits, but not possible obviously)
-typedef unsigned char  byte;  // Data word (8 bits)
-
 typedef struct CPU {
     // Internal stuff
     bool verbose;
     int breakpoint;
     
     // Instruction stuff
-    iword pc;
-    iword *inst;
+    uint16_t pc;
+    uint16_t *inst;
     bool skipnext;
     unsigned long cycles;
     
     // (Call) Stack
-    iword *stack;
+    uint16_t *stack;
     unsigned char stack_ptr;
     
     // Registers
-    byte w;
-    byte *f;
-    byte trisgpio;
-    byte option;
+    uint8_t w;
+    uint8_t *f;
+    uint8_t trisgpio;
+    uint8_t option;
 } CPU;
 
 // -structors
@@ -58,8 +54,8 @@ void cpu_init(CPU *cpu);
 void cpu_deinit(CPU *cpu);
 
 // Registers!
-byte cpu_getreg(CPU *cpu, byte r);
-void cpu_setreg(CPU *cpu, byte r, byte value);
+uint8_t cpu_getreg(CPU *cpu, uint8_t r);
+void cpu_setreg(CPU *cpu, uint8_t r, uint8_t value);
 void cpu_print_registers(CPU *cpu);
 
 // Execution
@@ -72,7 +68,7 @@ void cpu_clearbreakpoint(CPU *cpu);
 void cpu_run(CPU *cpu);
 
 // GPIO time
-byte cpu_getgpio(CPU *cpu);
+uint8_t cpu_getgpio(CPU *cpu);
 bool cpu_getpin(CPU *cpu, int pin);
-void cpu_setgpio(CPU *cpu, byte newgpio);
+void cpu_setgpio(CPU *cpu, uint8_t newgpio);
 void cpu_setpin(CPU *cpu, int pin, bool set);
