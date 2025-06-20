@@ -27,6 +27,21 @@
 #define PSA  3 // Prescaler Assignment bit
 #define PS 0x7 // Prescaler Rate Select bits
 
+// GPIO Bit Masks
+#define GP0 0x01
+#define GP1 0x02
+#define GP2 0x04
+#define GP3 0x08
+#define GP4 0x10
+#define GP5 0x20
+
+// Reset Conditions
+#define RESET_MCLR_NORMAL 1
+#define RESET_MCLR_SLEEP  2
+#define RESET_WDT_SLEEP   3
+#define RESET_WDT_NORMAL  4
+#define RESET_WAKE_PIN    5
+
 typedef struct CPU {
     // Internal stuff
     bool verbose;
@@ -47,10 +62,12 @@ typedef struct CPU {
     uint8_t *f;
     uint8_t trisgpio;
     uint8_t option;
+    uint16_t config;
 } CPU;
 
 // -structors
 void cpu_init(CPU *cpu);
+void cpu_reset(CPU *cpu, int reset_condition);
 void cpu_deinit(CPU *cpu);
 
 // Registers!
@@ -69,6 +86,10 @@ void cpu_run(CPU *cpu);
 
 // GPIO time
 uint8_t cpu_getgpio(CPU *cpu);
-bool cpu_getpin(CPU *cpu, int pin);
 void cpu_setgpio(CPU *cpu, uint8_t newgpio);
-void cpu_setpin(CPU *cpu, int pin, bool set);
+
+// Pin-specific GPIO, use masks for these
+// You can just do one pin or many pins
+uint8_t cpu_readpins(CPU *cpu, uint8_t pin_mask); // Returns a mask of the set pins masked by your mask
+bool cpu_anypinsset(CPU *cpu, uint8_t pin_mask); // Returns a bool as to whether any of the masked pins are set
+void cpu_writepins(CPU *cpu, uint8_t pin_mask, bool set); // Writes a pin mask to the gpio, setting or clearing them based on the set bool

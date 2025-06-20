@@ -2,6 +2,8 @@
     radix dec
     include "p12f508.inc"
 
+    __CONFIG _OSC_IntRC & _WDT_OFF & _CP_OFF & _MCLRE_ON
+
     org 0x00
     goto START
 

@@ -3,7 +3,10 @@
 
 void decode_and_dispatch(CPU *cpu)
 {
+    // TODO: I might split this up into the actual 4 cycle / 2 stage pipeline
+    
     // Fetch
+    cpu->pc &= 0x1FF;
     uint16_t instruction = cpu->inst[cpu->pc] & 0xFFF;
     
     // Skip if skip

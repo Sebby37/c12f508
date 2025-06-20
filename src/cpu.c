@@ -7,7 +7,7 @@ void cpu_init(CPU *cpu) {
     cpu->verbose = false;
     cpu->breakpoint = -1;
     
-    cpu->pc = 0;
+    cpu->pc = 0x1FF;
     cpu->inst = malloc(sizeof(uint16_t) * 512);
     cpu->skipnext = false;
     cpu->cycles = 0;
@@ -26,6 +26,41 @@ void cpu_init(CPU *cpu) {
     cpu->f[GPIO] =   0x00; // --xx xxxx
     cpu->trisgpio =  0x3F; // --11 1111
     cpu->option =    0xFF; // 1111 1111
+    cpu->config =   0xFFF; // ---- ---1 1111
+    
+    // The final instruction (0x1FF) is always MOVLW oscillator_calibration
+    // But since we're an emulator, that can just be a static value I guess
+    cpu->inst[0x1FF] = MOVLW & (0x40 << 1); // MOVLW 0x40/64, since bit 0 isn't used for OSCCAL I shift it left
+}
+
+void cpu_reset(CPU *cpu, int reset_condition)
+{
+    cpu->pc = 0x1FF;
+    cpu->f[PCL] = 0xFF;
+    cpu->f[FSR] |= 0xE0;
+    cpu->option = 0xFF;
+    cpu->trisgpio = 0x3F;
+    
+    uint8_t new_status = 0x18; // 0-01 1xxx (POR as default)
+    switch (reset_condition)
+    {
+        case RESET_MCLR_NORMAL: // 000u uuuu
+            new_status = cpu->f[STATUS] & 0x1F;
+            break;
+        case RESET_MCLR_SLEEP:  // 0001 0uuu
+            new_status = 0x10 | (cpu->f[STATUS] & 0x07);
+            break;
+        case RESET_WDT_SLEEP:   // 0000 0uuu
+            new_status = cpu->f[STATUS] & 0x07;
+            break;
+        case RESET_WDT_NORMAL:  // 0000 uuuu
+            new_status = cpu->f[STATUS] & 0x0F;
+            break;
+        case RESET_WAKE_PIN:    // 1001 0uuu
+            new_status = 0x90 | (cpu->f[STATUS] & 0x07);
+            break;
+    }
+    cpu->f[STATUS] = new_status;
 }
 
 void cpu_deinit(CPU *cpu) {
@@ -33,6 +68,7 @@ void cpu_deinit(CPU *cpu) {
     free(cpu->stack);
     free(cpu->f);
 }
+
 
 uint8_t cpu_getreg(CPU *cpu, uint8_t r)
 {
@@ -100,8 +136,6 @@ void cpu_load_hex(CPU *cpu, const char *hex_path)
     // Note I'm not gonna be handling any record types but 0x00 and 0x01
     // The 12f508 doesn't really seem to use the others, so why bother?
     
-    // NOTE: I DON'T THINK THIS WILL WORK FOR A CONFIG WORD!!!
-    
     FILE *file = fopen(hex_path, "r");
     if (file == NULL) 
     {
@@ -128,6 +162,15 @@ void cpu_load_hex(CPU *cpu, const char *hex_path)
             break;
         if (record_type != 0x00) // Non-data (we no want)
             continue;
+        
+        // Specific addresses - Config word
+        if (address == 0x1FFE)
+        {
+            uint16_t config_word = _read_hex_byte(file) | (_read_hex_byte(file) << 8);
+            cpu->config = config_word;
+            _read_hex_byte(file);
+            continue;
+        }
         
         // Actually read the data now
         for (int i = 0; i < num_bytes/2; i++)
@@ -179,27 +222,35 @@ void cpu_run(CPU *cpu)
     }
 }
 
+
 uint8_t cpu_getgpio(CPU *cpu)
 {
-    return cpu->f[GPIO];
+    return cpu_getreg(cpu, GPIO);
 }
-
-bool cpu_getpin(CPU *cpu, int pin)
-{
-    return cpu_getgpio(cpu) & (0x1 << pin);
-}
-
 
 void cpu_setgpio(CPU *cpu, uint8_t newgpio)
 {
     // I'd like a mutex someday :)
-    cpu->f[GPIO] = newgpio;
+    cpu_setreg(cpu, GPIO, newgpio);
 }
 
-void cpu_setpin(CPU *cpu, int pin, bool set)
+
+uint8_t cpu_readpins(CPU *cpu, uint8_t pin_mask)
+{
+    return cpu_getgpio(cpu) & pin_mask;
+}
+
+bool cpu_anypinsset(CPU *cpu, uint8_t pin_mask)
+{
+    return cpu_readpins(cpu, pin_mask);
+}
+
+void cpu_writepins(CPU *cpu, uint8_t pin_mask, bool set)
 {
     uint8_t gpio = cpu_getgpio(cpu);
-    gpio &= ~(0x1 << pin);
-    gpio |= set << pin;
+    if (set)
+        gpio |= pin_mask;
+    else
+        gpio &= ~pin_mask;
     cpu_setgpio(cpu, gpio);
 }
