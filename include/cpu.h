@@ -72,9 +72,13 @@ typedef struct CPU {
     
     // Timer0 and WDT
     // Using uint32_t for the prescaler, as it needs to go up to a max of 2,304,000 for a WDT prescaler of 1:128
+    // I doubt that that's how the prescaler is meant to work, but it shouldn't impact functionality in any way
     uint32_t prescaler;
     uint8_t timer0_inhibit;
     uint8_t wdt;
+    
+    // Snooze time
+    bool asleep;
 } CPU;
 
 // -structors

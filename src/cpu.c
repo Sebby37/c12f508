@@ -33,6 +33,8 @@ void cpu_init(CPU *cpu)
     cpu->timer0_inhibit = 0;
     cpu->wdt = 0;
     
+    cpu->asleep = false;
+    
     // The final instruction (0x1FF) is always MOVLW oscillator_calibration
     // But since we're an emulator, that can just be a static value I guess
     cpu->inst[0x1FF] = MOVLW & (0x40 << 1); // MOVLW 0x40/64, since bit 0 isn't used for OSCCAL I shift it left
@@ -40,14 +42,22 @@ void cpu_init(CPU *cpu)
 
 void cpu_reset(CPU *cpu, int reset_condition)
 {
+    if (cpu->verbose) {
+        const char *reset_conditions[] = {"", "MCLR_NORMAL", "MCLR_SLEEP", "WDT_SLEEP", "WDT_NORMAL", "RESET_WAKE_PIN"};
+        printf("CPU Reset: %s\n", reset_conditions[reset_condition]);
+    }
+    
     cpu->pc = 0x1FF;
     cpu->f[PCL] = 0xFF;
     cpu->f[FSR] |= 0xE0;
     cpu->option = 0xFF;
     cpu->trisgpio = 0x3F;
+    
     cpu->prescaler = 0;
     cpu->timer0_inhibit = 0;
     cpu->wdt = 0;
+    
+    cpu->asleep = false;
     
     uint8_t new_status = 0x18; // 0-01 1xxx (POR as default)
     switch (reset_condition)
@@ -102,7 +112,7 @@ void cpu_setreg(CPU *cpu, uint8_t r, uint8_t value)
 {
     switch (r) {
         case TMR0: // If prescaler assigned to timer0, stalls the timer for the next 2 cycles, also clears the prescaler timer
-            if (cpu->option & PSA == 0) {
+            if ((cpu->option & PSA) == 0) {
                 cpu->prescaler = 0;
                 cpu->timer0_inhibit = 2;
             }
@@ -247,7 +257,23 @@ uint8_t cpu_getgpio(CPU *cpu)
 void cpu_setgpio(CPU *cpu, uint8_t newgpio)
 {
     // I'd like a mutex someday :)
+    uint8_t oldgpio = cpu_getgpio(cpu);
     cpu_setreg(cpu, GPIO, newgpio);
+    
+    // Handle MCLR resets
+    if (((cpu->config & MCLRE) != 0) && ((oldgpio & GP3) != (newgpio & GP3)))
+        if (!cpu->asleep) {
+            cpu_reset(cpu, RESET_MCLR_NORMAL);
+            return;
+        } else {
+            cpu_reset(cpu, RESET_MCLR_SLEEP);
+            return;
+        }
+    // Handle pin wakeups
+    if ((cpu->option & GPWU) == 0 && (oldgpio & (GP0 | GP1 | GP3)) != (newgpio & (GP0 | GP1 | GP3))) {
+        cpu_reset(cpu, RESET_WAKE_PIN);
+        return;
+    }
 }
 
 

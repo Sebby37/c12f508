@@ -5,6 +5,13 @@ void instruction_cycle(CPU *cpu)
 {
     // TODO: I might split this up into the actual 4 cycle / 2 stage pipeline
     
+    // Sleep handling
+    if (cpu->asleep) {
+        // if (cpu->verbose)
+        //     printf("CPU is asleep...\n");
+        goto execute_end;
+    }
+    
     // Fetch
     cpu->pc &= 0x1FF;
     uint16_t instruction = cpu->inst[cpu->pc] & 0xFFF;
@@ -16,7 +23,7 @@ void instruction_cycle(CPU *cpu)
             printf("STALL\n");
         cpu->skipnext = false;
         inst_NOP(cpu);
-        goto dispatch_end;
+        goto execute_end;
     }
     
     // Decode opcodes
@@ -41,118 +48,118 @@ void instruction_cycle(CPU *cpu)
     switch (instruction) {
         case CLRW:
             inst_CLRW(cpu);
-            goto dispatch_end;
+            goto execute_end;
         case NOP:
             inst_NOP(cpu);
-            goto dispatch_end;
+            goto execute_end;
         case CLRWDT:
             inst_CLRWDT(cpu);
-            goto dispatch_end;
+            goto execute_end;
         case OPTION:
             inst_OPTION(cpu);
-            goto dispatch_end;
+            goto execute_end;
         case SLEEP:
             inst_SLEEP(cpu);
-            goto dispatch_end;
+            goto execute_end;
         case TRIS:
             inst_TRIS(cpu,6);
-            goto dispatch_end;
+            goto execute_end;
     }
     // Byte level instructions next
     switch (byte_opcode) {
         case ADDWF:
             inst_ADDWF(cpu,f,d);
-            goto dispatch_end;
+            goto execute_end;
         case ANDWF:
             inst_ANDWF(cpu,f,d);
-            goto dispatch_end;
+            goto execute_end;
         case CLRF:
             if (d != 1) break; // d must be 1 for this
             inst_CLRF(cpu,f);
-            goto dispatch_end;
+            goto execute_end;
         case COMF:
             inst_COMF(cpu,f,d);
-            goto dispatch_end;
+            goto execute_end;
         case DECF:
             inst_DECF(cpu,f,d);
-            goto dispatch_end;
+            goto execute_end;
         case DECFSZ:
             inst_DECFSZ(cpu,f,d);
-            goto dispatch_end;
+            goto execute_end;
         case INCF:
             inst_INCF(cpu,f,d);
-            goto dispatch_end;
+            goto execute_end;
         case INCFSZ:
             inst_INCFSZ(cpu,f,d);
-            goto dispatch_end;
+            goto execute_end;
         case IORWF:
             inst_IORWF(cpu,f,d);
-            goto dispatch_end;
+            goto execute_end;
         case MOVF:
             inst_MOVF(cpu,f,d);
-            goto dispatch_end;
+            goto execute_end;
         case MOVWF:
             if (d != 1) break; // d must be 1 for this
             inst_MOVWF(cpu,f);
-            goto dispatch_end;
+            goto execute_end;
         case RLF:
             inst_RLF(cpu,f,d);
-            goto dispatch_end;
+            goto execute_end;
         case RRF:
             inst_RRF(cpu,f,d);
-            goto dispatch_end;
+            goto execute_end;
         case SUBWF:
             inst_SUBWF(cpu,f,d);
-            goto dispatch_end;
+            goto execute_end;
         case SWAPF:
             inst_SWAPF(cpu,f,d);
-            goto dispatch_end;
+            goto execute_end;
         case XORWF:
             inst_XORWF(cpu,f,d);
-            goto dispatch_end;
+            goto execute_end;
     }
     // Bit level instructions now
     switch (blit_opcode) {
         case BCF:
             inst_BCF(cpu,f,b);
-            goto dispatch_end;
+            goto execute_end;
         case BSF:
             inst_BSF(cpu,f,b);
-            goto dispatch_end;
+            goto execute_end;
         case BTFSC:
             inst_BTFSC(cpu,f,b);
-            goto dispatch_end;
+            goto execute_end;
         case BTFSS:
             inst_BTFSS(cpu,f,b);
-            goto dispatch_end;
+            goto execute_end;
     }
     // Literal and control instructions finally
     switch (blit_opcode) {
         case ANDLW:
             inst_ANDLW(cpu,k);
-            goto dispatch_end;
+            goto execute_end;
         case CALL:
             inst_CALL(cpu,k);
             cpu->inst_cycles++; // CALL takes 2 cycles
-            goto dispatch_end;
+            goto execute_end;
         case IORLW:
             inst_IORLW(cpu,k);
-            goto dispatch_end;
+            goto execute_end;
         case MOVLW:
             inst_MOVLW(cpu,k);
-            goto dispatch_end;
+            goto execute_end;
         case RETLW:
             inst_RETLW(cpu,k);
-            goto dispatch_end;
+            goto execute_end;
         case XORLW:
             inst_XORLW(cpu,k);
-            goto dispatch_end;
+            goto execute_end;
     }
     // And goto with it's 3-bit length opcode
     if (goto_opcode == GOTO) {
         inst_GOTO(cpu,goto_k);
         cpu->inst_cycles++; // GOTO also takes 2 cycles
-        goto dispatch_end;
+        goto execute_end;
     }
     // If this is reached, we have an ILLEGAL INSTRUCTION!!!
     printf("[WARN] Illegal Instruction!\n");
@@ -160,15 +167,15 @@ void instruction_cycle(CPU *cpu)
 // Dispatch exit point
 // Using goto so I don't have to have a mess of nested switch statements or an extra variable keeping track and such
 // Also goto is a C quirk, I like those :)
-dispatch_end:
+execute_end:
     cpu->pc++;
-    cpu->inst_cycles++; // Counting cycles, Chekhov's Gun
+    cpu->inst_cycles++; // Counting cycles, Chekhov's Gun (I can't remember why I wrote this)
     
     // Prescale time!
     cpu->prescaler++;
     
     // Timer0 incrementing based on prescaler, adding 1 since prescaler 000 means 1:2
-    if (cpu->option & PSA == 0) {
+    if ((cpu->option & PSA) == 0 && !cpu->asleep) {
         if (cpu->timer0_inhibit > 0 && cpu->prescaler >= (1 << ((cpu->option & PS)+1))) {
             cpu->prescaler = 0;
             cpu->f[TMR0]++;
@@ -181,16 +188,20 @@ dispatch_end:
         }
     }
     // Same but for WDT (also we don't add 1 since prescaler 000 means 1:1)
-    else if (cpu->option & PSA != 0 && cpu->config & WDTE != 0) {
+    else if ((cpu->option & PSA) != 0 && (cpu->config & WDTE) != 0) {
         // 18,000 cycles per WDT timer increment (for a 1mhz instruction cycle rate)
-        if (cpu->prescaler >= (1 << ((cpu->option & PS)))*18000) {
+        // I'm not running a separate thread for the WDT so this is the best workaround I can think of
+        if (cpu->prescaler >= (1 << (cpu->option & PS))*18000) {
             cpu->prescaler = 0;
             cpu->wdt++;
             
             // WDT timeout handling
             // Just checking for overflow, which it will be here if it's zero :)
             if (cpu->wdt == 0)
-                cpu_reset(cpu, RESET_WDT_NORMAL);
+                if (!cpu->asleep)
+                    cpu_reset(cpu, RESET_WDT_NORMAL);
+                else
+                    cpu_reset(cpu, RESET_WDT_SLEEP);
         }
     }
     
@@ -617,7 +628,7 @@ void inst_CLRWDT(CPU *cpu)
     cpu->wdt = 0;
     
     // And prescaler if assigned to it
-    if (cpu->option & PSA != 0 && cpu->config & WDTE != 0)
+    if ((cpu->option & PSA) != 0 && (cpu->config & WDTE) != 0)
         cpu->prescaler = 0;
     
     // Status bits
@@ -706,7 +717,7 @@ void inst_SLEEP(CPU *cpu)
 {
     // Verbosity!
     if (cpu->verbose)
-        printf("[%03u] SLEEP (Not yet implemented!)\n", 
+        printf("[%03u] SLEEP\n", 
                 cpu->pc);
     
     // Might just do a POR for now until I figure out how I wanna do sleeps
@@ -714,6 +725,19 @@ void inst_SLEEP(CPU *cpu)
     // Update 1: I might look into handling this once I have proper cycle-accurate execution,
     //           that way I can have the CPU continue to run an exec loop but just do nothing during it.
     //           Either that or I'll just have it trigger a breakpoint.
+    
+    // Update 2: I'm just gonna implement it I think, better to have it now than procrastinate it further.
+    //           The only thing I really want apart from cycle accuracy is GPIO callbacks, which are up next!
+    
+    // Snoozin' time!
+    cpu->asleep = true;
+    
+    // Clear watchdog timer
+    cpu->wdt = 0;
+    
+    // And prescaler if assigned to it
+    if ((cpu->option & PSA) != 0 && (cpu->config & WDTE) != 0)
+        cpu->prescaler = 0;
 }
 
 void inst_TRIS(CPU *cpu, uint8_t k)
