@@ -1,10 +1,16 @@
 #include <stdio.h>
 #include "cpu.h"
 
+void read_callback(CPU *cpu, uint8_t *gpio) {
+	static int count = 0;
+	*gpio = count++ & 1;
+}
+
 int main(void) {
 	CPU cpu;
 	cpu_init(&cpu);
 	cpu.verbose = true;
+	cpu.gpio_read_callback = read_callback;
 	
 	// cpu.w = 50;
 	// cpu.f[13] = 50;
@@ -31,11 +37,14 @@ int main(void) {
 	
 	for (int i = 0; i < 50; i++)
 	{
-		if (i == 10) cpu_writepins(&cpu, GP0, true);
-		if (i == 20) cpu_writepins(&cpu, GP0, false);
-		if (i == 30) cpu_writepins(&cpu, GP0, true);
-		if (i == 40) cpu_writepins(&cpu, GP0, false);
+		// if (i == 10) cpu_writepins(&cpu, GP0, true);
+		// if (i == 20) cpu_writepins(&cpu, GP0, false);
+		// if (i == 30) cpu_writepins(&cpu, GP0, true);
+		// if (i == 40) cpu_writepins(&cpu, GP0, false);
 		cpu_step(&cpu);
+		
+		if (cpu.asleep)
+			cpu_writepins(&cpu, GP0, true);
 	}
 	
 	return 0;

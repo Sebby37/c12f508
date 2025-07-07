@@ -220,7 +220,7 @@ void inst_ADDWF(CPU *cpu, uint8_t f, uint8_t d)
     // Verbosity!
     if (cpu->verbose)
         printf("[%03u] ADDWF: f=0x%02x(%u), w=%u, d=%u(%c), result=%u\n", 
-                cpu->pc, f, cpu_getreg(cpu,f), cpu->w, d, (d == 1 ? 'f' : 'w'), result);
+                cpu->pc, f, f_val, cpu->w, d, (d == 1 ? 'f' : 'w'), result);
     
     // Status reg
     cpu->f[STATUS] &= ~(C | DC | Z);
@@ -239,12 +239,13 @@ void inst_ADDWF(CPU *cpu, uint8_t f, uint8_t d)
 void inst_ANDWF(CPU *cpu, uint8_t f, uint8_t d)
 {
     // Compute
-    uint8_t result = cpu->w & cpu_getreg(cpu,f);
+    uint8_t f_val = cpu_getreg(cpu,f);
+    uint8_t result = cpu->w & f_val;
     
     // Verbosity!
     if (cpu->verbose)
         printf("[%03u] ANDWF: f=0x%02x(%u), w=%u, d=%u(%c), result=%u\n", 
-                cpu->pc, f, cpu_getreg(cpu,f), cpu->w, d, (d == 1 ? 'f' : 'w'), result);
+                cpu->pc, f, f_val, cpu->w, d, (d == 1 ? 'f' : 'w'), result);
     
     // Status
     cpu->f[STATUS] &= ~Z;
@@ -259,8 +260,8 @@ void inst_CLRF(CPU *cpu, uint8_t f)
 {
     // Verbosity!
     if (cpu->verbose)
-        printf("[%03u] CLRF: f=0x%02x(%u), w=%u\n", 
-                cpu->pc, f, cpu_getreg(cpu,f), cpu->w);
+        printf("[%03u] CLRF: f=0x%02x, w=%u\n", 
+                cpu->pc, f, cpu->w);
     
     // Clear + Status
     cpu_setreg(cpu, f, 0);
@@ -282,12 +283,13 @@ void inst_CLRW(CPU *cpu)
 void inst_COMF(CPU *cpu, uint8_t f, uint8_t d)
 {
     // Compute
-    uint8_t result = ~cpu_getreg(cpu,f);
+    uint8_t f_val = cpu_getreg(cpu,f);
+    uint8_t result = ~f_val;
     
     // Verbosity!
     if (cpu->verbose)
         printf("[%03u] COMF: f=0x%02x(%u), w=%u, d=%u(%c), result=%u\n", 
-                cpu->pc, f, cpu_getreg(cpu,f), cpu->w, d, (d == 1 ? 'f' : 'w'), result);
+                cpu->pc, f, f_val, cpu->w, d, (d == 1 ? 'f' : 'w'), result);
     
     // Status
     cpu->f[STATUS] &= ~Z;
@@ -301,12 +303,13 @@ void inst_COMF(CPU *cpu, uint8_t f, uint8_t d)
 void inst_DECF(CPU *cpu, uint8_t f, uint8_t d)
 {
     // Compute
-    uint8_t result = cpu_getreg(cpu,f) - 1;
+    uint8_t f_val = cpu_getreg(cpu,f);
+    uint8_t result = f_val - 1;
     
     // Verbosity!
     if (cpu->verbose)
         printf("[%03u] DECF: f=0x%02x(%u), w=%u, d=%u(%c), result=%u\n", 
-                cpu->pc, f, cpu_getreg(cpu,f), cpu->w, d, (d == 1 ? 'f' : 'w'), result);
+                cpu->pc, f, f_val, cpu->w, d, (d == 1 ? 'f' : 'w'), result);
     
     // Status
     cpu->f[STATUS] &= ~Z;
@@ -320,12 +323,13 @@ void inst_DECF(CPU *cpu, uint8_t f, uint8_t d)
 void inst_DECFSZ(CPU *cpu, uint8_t f, uint8_t d)
 {
     // Compute
-    uint8_t result = cpu_getreg(cpu,f) - 1;
+    uint8_t f_val = cpu_getreg(cpu,f);
+    uint8_t result = f_val - 1;
     
     // Verbosity!
     if (cpu->verbose)
         printf("[%03u] DECFSZ: f=0x%02x(%u), w=%u, d=%u(%c), result=%u\n", 
-                cpu->pc, f, cpu_getreg(cpu,f), cpu->w, d, (d == 1 ? 'f' : 'w'), result);
+                cpu->pc, f, f_val, cpu->w, d, (d == 1 ? 'f' : 'w'), result);
     
     // Store
     if (d == 0) cpu->w = result;
@@ -338,12 +342,13 @@ void inst_DECFSZ(CPU *cpu, uint8_t f, uint8_t d)
 void inst_INCF(CPU *cpu, uint8_t f, uint8_t d)
 {
     // Compute
-    uint8_t result = cpu_getreg(cpu,f) + 1;
+    uint8_t f_val = cpu_getreg(cpu,f);
+    uint8_t result = f_val + 1;
     
     // Verbosity!
     if (cpu->verbose)
         printf("[%03u] INCF: f=0x%02x(%u), w=%u, d=%u(%c), result=%u\n", 
-                cpu->pc, f, cpu_getreg(cpu,f), cpu->w, d, (d == 1 ? 'f' : 'w'), result);
+                cpu->pc, f, f_val, cpu->w, d, (d == 1 ? 'f' : 'w'), result);
     
     // Status
     cpu->f[STATUS] &= ~Z;
@@ -357,12 +362,13 @@ void inst_INCF(CPU *cpu, uint8_t f, uint8_t d)
 void inst_INCFSZ(CPU *cpu, uint8_t f, uint8_t d)
 {
     // Compute
-    uint8_t result = cpu_getreg(cpu,f) + 1;
+    uint8_t f_val = cpu_getreg(cpu,f);
+    uint8_t result = f_val + 1;
     
     // Verbosity!
     if (cpu->verbose)
         printf("[%03u] INCF: f=0x%02x(%u), w=%u, d=%u(%c), result=%u\n", 
-                cpu->pc, f, cpu_getreg(cpu,f), cpu->w, d, (d == 1 ? 'f' : 'w'), result);
+                cpu->pc, f, f_val, cpu->w, d, (d == 1 ? 'f' : 'w'), result);
     
     // Store
     if (d == 0) cpu->w = result;
@@ -375,12 +381,13 @@ void inst_INCFSZ(CPU *cpu, uint8_t f, uint8_t d)
 void inst_IORWF(CPU *cpu, uint8_t f, uint8_t d)
 {
     // Compute
-    uint8_t result = cpu->w | cpu_getreg(cpu,f);
+    uint8_t f_val = cpu_getreg(cpu,f);
+    uint8_t result = cpu->w | f_val;
     
     // Verbosity!
     if (cpu->verbose)
         printf("[%03u] IORWF: f=0x%02x(%u), w=%u, d=%u(%c), result=%u\n", 
-                cpu->pc, f, cpu_getreg(cpu,f), cpu->w, d, (d == 1 ? 'f' : 'w'), result);
+                cpu->pc, f, f_val, cpu->w, d, (d == 1 ? 'f' : 'w'), result);
     
     // Status
     cpu->f[STATUS] &= ~Z;
@@ -399,7 +406,7 @@ void inst_MOVF(CPU *cpu, uint8_t f, uint8_t d)
     // Verbosity!
     if (cpu->verbose)
         printf("[%03u] MOVF: f=0x%02x(%u), w=%u, d=%u(%c), result=%u\n", 
-                cpu->pc, f, cpu_getreg(cpu,f), cpu->w, d, (d == 1 ? 'f' : 'w'), result);
+                cpu->pc, f, result, cpu->w, d, (d == 1 ? 'f' : 'w'), result);
     
     // Status
     cpu->f[STATUS] &= ~Z;
@@ -414,8 +421,8 @@ void inst_MOVWF(CPU *cpu, uint8_t f)
 {
     // Verbosity!
     if (cpu->verbose)
-        printf("[%03u] MOVWF: f=0x%02x(%u), w=%u\n", 
-                cpu->pc, f, cpu_getreg(cpu,f), cpu->w);
+        printf("[%03u] MOVWF: f=0x%02x, w=%u\n", 
+                cpu->pc, f, cpu->w);
     
     // Store
     cpu_setreg(cpu, f, cpu->w);
@@ -433,7 +440,8 @@ void inst_NOP(CPU *cpu)
 void inst_RLF(CPU *cpu, uint8_t f, uint8_t d)
 {
     // Compute + set carry bit
-    uint8_t result = cpu_getreg(cpu,f);
+    uint8_t f_val = cpu_getreg(cpu,f);
+    uint8_t result = f_val;
     cpu->f[STATUS] &= ~C;
     if (result >> 7 == 1) cpu->f[STATUS] |= C;
     result <<= 1;
@@ -441,7 +449,7 @@ void inst_RLF(CPU *cpu, uint8_t f, uint8_t d)
     // Verbosity!
     if (cpu->verbose)
         printf("[%03u] RLF: f=0x%02x(%u), w=%u, d=%u(%c), result=%u\n", 
-                cpu->pc, f, cpu_getreg(cpu,f), cpu->w, d, (d == 1 ? 'f' : 'w'), result);
+                cpu->pc, f, f_val, cpu->w, d, (d == 1 ? 'f' : 'w'), result);
     
     // Store
     if (d == 0) cpu->w = result;
@@ -451,7 +459,8 @@ void inst_RLF(CPU *cpu, uint8_t f, uint8_t d)
 void inst_RRF(CPU *cpu, uint8_t f, uint8_t d)
 {
     // Compute + set carry bit
-    uint8_t result = cpu_getreg(cpu,f);
+    uint8_t f_val = cpu_getreg(cpu,f);
+    uint8_t result = f_val;
     cpu->f[STATUS] &= ~C;
     if (result & 0x01 == 1) cpu->f[STATUS] |= C;
     result >>= 1;
@@ -459,7 +468,7 @@ void inst_RRF(CPU *cpu, uint8_t f, uint8_t d)
     // Verbosity!
     if (cpu->verbose)
         printf("[%03u] RRF: f=0x%02x(%u), w=%u, d=%u(%c), result=%u\n", 
-                cpu->pc, f, cpu_getreg(cpu,f), cpu->w, d, (d == 1 ? 'f' : 'w'), result);
+                cpu->pc, f, f_val, cpu->w, d, (d == 1 ? 'f' : 'w'), result);
     
     // Store
     if (d == 0) cpu->w = result;
@@ -476,7 +485,7 @@ void inst_SUBWF(CPU *cpu, uint8_t f, uint8_t d)
     // Verbosity!
     if (cpu->verbose)
         printf("[%03u] SUBWF: f=0x%02x(%u), w=%u, d=%u(%c), result=%u\n", 
-                cpu->pc, f, cpu_getreg(cpu,f), cpu->w, d, (d == 1 ? 'f' : 'w'), result);
+                cpu->pc, f, f_val, cpu->w, d, (d == 1 ? 'f' : 'w'), result);
     
     // Status reg
     cpu->f[STATUS] &= ~(C | DC | Z);
@@ -495,13 +504,14 @@ void inst_SUBWF(CPU *cpu, uint8_t f, uint8_t d)
 void inst_SWAPF(CPU *cpu, uint8_t f, uint8_t d)
 {
     // Compute
-    uint8_t result = cpu_getreg(cpu,f);
+    uint8_t f_val = cpu_getreg(cpu,f);
+    uint8_t result = f_val;
     result = (result << 4) | ((result & 0xF0) >> 4);
     
     // Verbosity!
     if (cpu->verbose)
         printf("[%03u] SWAPF: f=0x%02x(0x%02x), w=%u, d=%u(%c), result=%02x\n", 
-                cpu->pc, f, cpu_getreg(cpu,f), cpu->w, d, (d == 1 ? 'f' : 'w'), result);
+                cpu->pc, f, f_val, cpu->w, d, (d == 1 ? 'f' : 'w'), result);
     
     // Store
     if (d == 0) cpu->w = result;
@@ -511,12 +521,13 @@ void inst_SWAPF(CPU *cpu, uint8_t f, uint8_t d)
 void inst_XORWF(CPU *cpu, uint8_t f, uint8_t d)
 {
     // Compute
-    uint8_t result = cpu->w ^ cpu_getreg(cpu,f);
+    uint8_t f_val = cpu_getreg(cpu,f);
+    uint8_t result = cpu->w ^ f_val;
     
     // Verbosity!
     if (cpu->verbose)
         printf("[%03u] XORWF: f=0x%02x(%u), w=%u, d=%u(%c), result=%u\n", 
-                cpu->pc, f, cpu_getreg(cpu,f), cpu->w, d, (d == 1 ? 'f' : 'w'), result);
+                cpu->pc, f, f_val, cpu->w, d, (d == 1 ? 'f' : 'w'), result);
     
     // Status
     cpu->f[STATUS] &= ~Z;
@@ -532,12 +543,15 @@ void inst_XORWF(CPU *cpu, uint8_t f, uint8_t d)
 void inst_BCF(CPU *cpu, uint8_t f, uint8_t b)
 {
     // Compute
-    uint8_t result = cpu_getreg(cpu,f) & ~(1 << b);
+    cpu->do_callback = false;
+    uint8_t f_val = cpu_getreg(cpu,f);
+    uint8_t result = f_val & ~(1 << b);
+    cpu->do_callback = true;
     
     // Verbosity!
     if (cpu->verbose)
         printf("[%03u] BCF: f=0x%02x(%u), b=%u, result=%u\n", 
-                cpu->pc, f, cpu_getreg(cpu,f), b, result);
+                cpu->pc, f, f_val, b, result);
     
     // Store
     cpu_setreg(cpu, f, result);
@@ -546,12 +560,15 @@ void inst_BCF(CPU *cpu, uint8_t f, uint8_t b)
 void inst_BSF(CPU *cpu, uint8_t f, uint8_t b)
 {
     // Compute
-    uint8_t result = cpu_getreg(cpu,f) | (1 << b);
+    cpu->do_callback = false;
+    uint8_t f_val = cpu_getreg(cpu,f);
+    uint8_t result = f_val | (1 << b);
+    cpu->do_callback = true;
     
     // Verbosity!
     if (cpu->verbose)
         printf("[%03u] BSF: f=0x%02x(%02x), b=%u, result=%u\n", 
-                cpu->pc, f, cpu_getreg(cpu,f), b, result);
+                cpu->pc, f, f_val, b, result);
     
     // Store
     cpu_setreg(cpu, f, result);
@@ -559,25 +576,29 @@ void inst_BSF(CPU *cpu, uint8_t f, uint8_t b)
 
 void inst_BTFSC(CPU *cpu, uint8_t f, uint8_t b)
 {
+    uint8_t f_val = cpu_getreg(cpu,f);
+    
     // Verbosity!
     if (cpu->verbose)
         printf("[%03u] BTFSC: f=0x%02x(%02x), b=%u\n", 
-                cpu->pc, f, cpu_getreg(cpu,f), b);
+                cpu->pc, f, f_val, b);
     
     // Test bit (skip if clear)!
-    if (cpu_getreg(cpu,f) & (1 << b) == 0)
+    if (f_val & (1 << b) == 0)
         cpu->skipnext = true;
 }
 
 void inst_BTFSS(CPU *cpu, uint8_t f, uint8_t b)
 {
+    uint8_t f_val = cpu_getreg(cpu,f);
+    
     // Verbosity!
     if (cpu->verbose)
         printf("[%03u] BTFSS: f=0x%02x(%02x), b=%u\n", 
-                cpu->pc, f, cpu_getreg(cpu,f), b);
+                cpu->pc, f, f_val, b);
     
     // Test bit (skip if set)!
-    if (cpu_getreg(cpu,f) & (1 << b) != 0)
+    if (f_val & (1 << b) != 0)
         cpu->skipnext = true;
 }
 

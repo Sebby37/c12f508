@@ -15,8 +15,8 @@ see the todo just below for what (I think) needs to be done before it's fully fu
 - [X] Configuration word being acknowledged (kinda requires all of the above)
 - [X] Proper pin IO functions
 - [X] SLEEP instruction + resets and such
-- [ ] IO Callbacks
-- [ ] Make it thread-safe!
+- [X] IO Callbacks
+- [ ] Make it thread-safe! (Likely using platform-specific mutexes on the GPIO)
 - [ ] Make it cycle accurate (as in the whole 2-stage pipeline and 4-cycle fetch/execution)
 
 ## Future plans that maybe might just potentially happen

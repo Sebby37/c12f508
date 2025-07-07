@@ -48,6 +48,7 @@
 #define RESET_WDT_NORMAL  4
 #define RESET_WAKE_PIN    5
 
+struct CPU;
 typedef struct CPU {
     // Internal stuff
     bool verbose;
@@ -79,6 +80,11 @@ typedef struct CPU {
     
     // Snooze time
     bool asleep;
+    
+    // GPIO callbacks
+    bool do_callback; // Mainly to temporarily disable them in instructions where they'd usually not be called
+    void (*gpio_read_callback)(struct CPU *, uint8_t *);
+    void (*gpio_write_callback)(struct CPU *, uint8_t *);
 } CPU;
 
 // -structors

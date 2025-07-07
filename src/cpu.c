@@ -35,9 +35,14 @@ void cpu_init(CPU *cpu)
     
     cpu->asleep = false;
     
+    cpu->do_callback = true;
+    cpu->gpio_read_callback = NULL;
+    cpu->gpio_write_callback = NULL;
+    
     // The final instruction (0x1FF) is always MOVLW oscillator_calibration
     // But since we're an emulator, that can just be a static value I guess
-    cpu->inst[0x1FF] = MOVLW & (0x40 << 1); // MOVLW 0x40/64, since bit 0 isn't used for OSCCAL I shift it left
+    // The datasheet says 0x00 is the middle value so I'm just gonna use it
+    cpu->inst[0x1FF] = MOVLW; // MOVLW 0x00
 }
 
 void cpu_reset(CPU *cpu, int reset_condition)
@@ -100,8 +105,13 @@ uint8_t cpu_getreg(CPU *cpu, uint8_t r)
         case FSR: // Bits <7:5> are unimplemented and read as 1
             return cpu->f[FSR] | 0xE0;
         case GPIO: // Bits <7:6> are unimplemented and read as 0
-            // Might need to replace this with a function to read from emulated GPIO, idk
-            return cpu->f[GPIO] & 0x3F;
+            uint8_t gpio = cpu->f[GPIO] & 0x3F;
+            if (cpu->do_callback && cpu->gpio_read_callback) {
+                if (cpu->verbose)
+                    printf("  Calling GPIO read callback...\n");
+                cpu->gpio_read_callback(cpu, &gpio);
+            }
+            return gpio;
     }
     
     // Regular cases
@@ -123,6 +133,14 @@ void cpu_setreg(CPU *cpu, uint8_t r, uint8_t value)
             return;
         case STATUS: // Bits <4:3> are not writable, so preserve them
             cpu->f[STATUS] = (cpu->f[STATUS] & 0x18) | (value & 0xE7);
+            return;
+        case GPIO:
+            cpu->f[GPIO] = value;
+            if (cpu->do_callback && cpu->gpio_write_callback) {
+                if (cpu->verbose)
+                    printf("  Calling GPIO write callback...\n");
+                cpu->gpio_write_callback(cpu, &cpu->f[GPIO]);
+            }
             return;
     }
     
@@ -251,14 +269,19 @@ void cpu_run(CPU *cpu)
 
 uint8_t cpu_getgpio(CPU *cpu)
 {
-    return cpu_getreg(cpu, GPIO);
+    cpu->do_callback = false;
+    uint8_t gpio = cpu_getreg(cpu, GPIO);
+    cpu->do_callback = true;
+    return gpio;
 }
 
 void cpu_setgpio(CPU *cpu, uint8_t newgpio)
 {
     // I'd like a mutex someday :)
     uint8_t oldgpio = cpu_getgpio(cpu);
+    cpu->do_callback = false;
     cpu_setreg(cpu, GPIO, newgpio);
+    cpu->do_callback = true;
     
     // Handle MCLR resets
     if (((cpu->config & MCLRE) != 0) && ((oldgpio & GP3) != (newgpio & GP3)))
