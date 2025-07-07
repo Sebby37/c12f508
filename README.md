@@ -10,13 +10,14 @@ see the todo just below for what (I think) needs to be done before it's fully fu
 - [X] HEX file reading (see tests/test_divide.c)
 - [X] Watchdog timer functionality (+ CLRWDT)
 - [X] timer0 functionality
-- [~] Proper reset function(s) + functionality
-- [ ] Proper pin IO functions
-- [~] Configuration word being acknowledged (kinda requires all of the above)
-- [ ] SLEEP instruction
+- [X] Better makefile or even CMake
+- [X] Proper reset function(s) + functionality
+- [X] Configuration word being acknowledged (kinda requires all of the above)
+- [X] Proper pin IO functions
+- [ ] IO Callbacks
 - [ ] Make it thread-safe!
-- [~] Better makefile or even CMake
 - [ ] Make it cycle accurate (as in the whole 2-stage pipeline and 4-cycle fetch/execution)
+- [ ] SLEEP instruction + resets and such
 
 ## Future plans that maybe might just potentially happen
 - Full main program that can debug and such with a CLI interface
