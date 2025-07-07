@@ -181,7 +181,7 @@ dispatch_end:
         }
     }
     // Same but for WDT (also we don't add 1 since prescaler 000 means 1:1)
-    else {
+    else if (cpu->option & PSA != 0 && cpu->config & WDTE != 0) {
         // 18,000 cycles per WDT timer increment (for a 1mhz instruction cycle rate)
         if (cpu->prescaler >= (1 << ((cpu->option & PS)))*18000) {
             cpu->prescaler = 0;
@@ -617,7 +617,7 @@ void inst_CLRWDT(CPU *cpu)
     cpu->wdt = 0;
     
     // And prescaler if assigned to it
-    if (cpu->option & PSA != 0)
+    if (cpu->option & PSA != 0 && cpu->config & WDTE != 0)
         cpu->prescaler = 0;
     
     // Status bits

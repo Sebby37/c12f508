@@ -35,6 +35,12 @@
 #define GP4 0x10
 #define GP5 0x20
 
+// Config Word Bit Masks
+#define MCLRE 0x10 // GP3/MCLR pin function select bit
+#define CP    0x08 // Code Protection, does nothing here
+#define WDTE  0x04 // Watchdog Timer Enable, likely the only option that will actually be used
+#define FOSC  0x03 // Oscillator Selection, not sure if I'll really use this or just let the user select their own speed
+
 // Reset Conditions
 #define RESET_MCLR_NORMAL 1
 #define RESET_MCLR_SLEEP  2
@@ -51,11 +57,11 @@ typedef struct CPU {
     uint16_t pc;
     uint16_t *inst;
     bool skipnext;
-    unsigned long inst_cycles;
+    uint64_t inst_cycles;
     
     // (Call) Stack
     uint16_t *stack;
-    unsigned char stack_ptr;
+    uint8_t stack_ptr;
     
     // Registers
     uint8_t w;

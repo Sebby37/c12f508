@@ -1,21 +1,21 @@
 # c12f508 - A PIC12F508 emulator written in C
 It's exactly what it sounds like! Just a little project for me and no one else really I guess. It's my first time using C for a proper project though, 
 so I'm learning as I go when it comes to best practices, so don't expect the super best practices in syntax and such. It's currently incomplete, 
-see the todo just below for what (I think) needs to be done before it's fully functional.
+see the todo just below for what (I think) needs to be done before it's fully functional. Also it's C99 compatible, because why not?
 
 ## Todo
 - [X] Setup the project (idk I'm writing this with all of the crossed out stuff done at the moment)
 - [X] Implement every instruction (except SLEEP and CLRWDT)
 - [X] Cycle counting
 - [X] HEX file reading (see tests/test_divide.c)
-- [ ] Proper reset function(s) + functionality
+- [X] Watchdog timer functionality (+ CLRWDT)
+- [X] timer0 functionality
+- [~] Proper reset function(s) + functionality
 - [ ] Proper pin IO functions
-- [ ] Watchdog timer functionality (+ CLRWDT)
-- [ ] timer0 functionality
-- [ ] Configuration word being acknowledged (kinda requires all of the above)
+- [~] Configuration word being acknowledged (kinda requires all of the above)
 - [ ] SLEEP instruction
 - [ ] Make it thread-safe!
-- [ ] Better makefile or even CMake
+- [~] Better makefile or even CMake
 - [ ] Make it cycle accurate (as in the whole 2-stage pipeline and 4-cycle fetch/execution)
 
 ## Future plans that maybe might just potentially happen
