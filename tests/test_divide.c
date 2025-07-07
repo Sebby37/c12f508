@@ -6,7 +6,7 @@
 #define QUOTIENT_REG    0x07
 #define REMAINDER_REG   0x08
 
-int main() {
+int main(void) {
 	CPU cpu;
 	cpu_init(&cpu);
 	cpu.verbose = true;

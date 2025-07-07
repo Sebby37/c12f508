@@ -3,14 +3,15 @@
 #include "cpu.h"
 #include "instructions.h"
 
-void cpu_init(CPU *cpu) {
+void cpu_init(CPU *cpu)
+{
     cpu->verbose = false;
     cpu->breakpoint = -1;
     
     cpu->pc = 0x1FF;
     cpu->inst = malloc(sizeof(uint16_t) * 512);
     cpu->skipnext = false;
-    cpu->cycles = 0;
+    cpu->inst_cycles = 0;
     
     cpu->stack = malloc(sizeof(uint16_t) * 2);
     cpu->stack_ptr = 0;
@@ -28,6 +29,10 @@ void cpu_init(CPU *cpu) {
     cpu->option =    0xFF; // 1111 1111
     cpu->config =   0xFFF; // ---- ---1 1111
     
+    cpu->prescaler = 0;
+    cpu->timer0_inhibit = 0;
+    cpu->wdt = 0;
+    
     // The final instruction (0x1FF) is always MOVLW oscillator_calibration
     // But since we're an emulator, that can just be a static value I guess
     cpu->inst[0x1FF] = MOVLW & (0x40 << 1); // MOVLW 0x40/64, since bit 0 isn't used for OSCCAL I shift it left
@@ -40,6 +45,9 @@ void cpu_reset(CPU *cpu, int reset_condition)
     cpu->f[FSR] |= 0xE0;
     cpu->option = 0xFF;
     cpu->trisgpio = 0x3F;
+    cpu->prescaler = 0;
+    cpu->timer0_inhibit = 0;
+    cpu->wdt = 0;
     
     uint8_t new_status = 0x18; // 0-01 1xxx (POR as default)
     switch (reset_condition)
@@ -63,7 +71,8 @@ void cpu_reset(CPU *cpu, int reset_condition)
     cpu->f[STATUS] = new_status;
 }
 
-void cpu_deinit(CPU *cpu) {
+void cpu_deinit(CPU *cpu)
+{
     free(cpu->inst);
     free(cpu->stack);
     free(cpu->f);
@@ -92,11 +101,18 @@ uint8_t cpu_getreg(CPU *cpu, uint8_t r)
 void cpu_setreg(CPU *cpu, uint8_t r, uint8_t value)
 {
     switch (r) {
+        case TMR0: // If prescaler assigned to timer0, stalls the timer for the next 2 cycles, also clears the prescaler timer
+            if (cpu->option & PSA == 0) {
+                cpu->prescaler = 0;
+                cpu->timer0_inhibit = 2;
+            }
+            cpu->f[TMR0] = value;
+            return;
         case PCL: // Instructions that write to the PC set the 9th bit to 0 (except GOTO)
             cpu->pc = value;
             return;
-        case STATUS: // Bits <4:3> are not writable
-            cpu->f[STATUS] = value & 0xE7; // Switch this to a mask at somepoint, this just overwrites <4:3> with 0s
+        case STATUS: // Bits <4:3> are not writable, so preserve them
+            cpu->f[STATUS] = (cpu->f[STATUS] & 0x18) | (value & 0xE7);
             return;
     }
     
@@ -118,7 +134,7 @@ void cpu_print_registers(CPU *cpu)
 }
 
 
-static uint8_t _read_hex_byte(FILE *file_ptr)
+static uint8_t _read_next_nibble(FILE *file_ptr)
 {
     char high = fgetc(file_ptr) - '0';
     char low  = fgetc(file_ptr) - '0';
@@ -151,11 +167,11 @@ void cpu_load_hex(CPU *cpu, const char *hex_path)
             continue;
         
         // Glean the initial info
-        uint8_t num_bytes = _read_hex_byte(file);
+        uint8_t num_bytes = _read_next_nibble(file);
         if (cpu->verbose) printf("Num bytes: %02x\n", num_bytes);
-        uint16_t address = ((_read_hex_byte(file) << 8) | _read_hex_byte(file)) / 2;
+        uint16_t address = ((_read_next_nibble(file) << 8) | _read_next_nibble(file)) / 2;
         if (cpu->verbose) printf("Address: %04x\n", address);
-        uint8_t record_type = _read_hex_byte(file);
+        uint8_t record_type = _read_next_nibble(file);
         if (cpu->verbose) printf("Record type: %02x\n", record_type);
         
         if (record_type == 0x01) // EOF
@@ -166,22 +182,22 @@ void cpu_load_hex(CPU *cpu, const char *hex_path)
         // Specific addresses - Config word
         if (address == 0x1FFE)
         {
-            uint16_t config_word = _read_hex_byte(file) | (_read_hex_byte(file) << 8);
+            uint16_t config_word = _read_next_nibble(file) | (_read_next_nibble(file) << 8);
             cpu->config = config_word;
-            _read_hex_byte(file);
+            _read_next_nibble(file);
             continue;
         }
         
         // Actually read the data now
         for (int i = 0; i < num_bytes/2; i++)
         {
-            uint16_t instruction = _read_hex_byte(file) | (_read_hex_byte(file) << 8);
+            uint16_t instruction = _read_next_nibble(file) | (_read_next_nibble(file) << 8);
             if (cpu->verbose) printf("Instruction %d: %04x\n", address+i, instruction);
             cpu->inst[address+i] = instruction;
         }
         
         // Checksum! We don't care about the checksum, just use a good file!
-        _read_hex_byte(file);
+        _read_next_nibble(file);
     }
     
     if (fclose(file))
@@ -193,7 +209,7 @@ void cpu_load_hex(CPU *cpu, const char *hex_path)
 
 void cpu_step(CPU *cpu)
 {
-    decode_and_dispatch(cpu);
+    instruction_cycle(cpu);
 }
 
 

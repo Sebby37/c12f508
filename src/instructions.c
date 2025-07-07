@@ -1,7 +1,7 @@
 #include <stdio.h>
 #include "instructions.h"
 
-void decode_and_dispatch(CPU *cpu)
+void instruction_cycle(CPU *cpu)
 {
     // TODO: I might split this up into the actual 4 cycle / 2 stage pipeline
     
@@ -12,6 +12,8 @@ void decode_and_dispatch(CPU *cpu)
     // Skip if skip
     if (cpu->skipnext)
     {
+        if (cpu->verbose)
+            printf("STALL\n");
         cpu->skipnext = false;
         inst_NOP(cpu);
         goto dispatch_end;
@@ -34,7 +36,7 @@ void decode_and_dispatch(CPU *cpu)
         printf("Fetch: pc=%u, inst=0x%03x, byte_opcode=0x%03x, blit_opcode=0x%03x, dest=%u(%c), f=%u, bit=%u, k=%u\n", 
                 cpu->pc, instruction, byte_opcode, blit_opcode, d, (d == 1 ? 'f' : 'w'), f, b, k);
     
-    // Dispatch
+    // Execute
     // Full instructions first
     switch (instruction) {
         case CLRW:
@@ -131,7 +133,7 @@ void decode_and_dispatch(CPU *cpu)
             goto dispatch_end;
         case CALL:
             inst_CALL(cpu,k);
-            cpu->cycles++; // CALL takes 2 cycles
+            cpu->inst_cycles++; // CALL takes 2 cycles
             goto dispatch_end;
         case IORLW:
             inst_IORLW(cpu,k);
@@ -149,7 +151,7 @@ void decode_and_dispatch(CPU *cpu)
     // And goto with it's 3-bit length opcode
     if (goto_opcode == GOTO) {
         inst_GOTO(cpu,goto_k);
-        cpu->cycles++; // GOTO also takes 2 cycles
+        cpu->inst_cycles++; // GOTO also takes 2 cycles
         goto dispatch_end;
     }
     // If this is reached, we have an ILLEGAL INSTRUCTION!!!
@@ -160,7 +162,38 @@ void decode_and_dispatch(CPU *cpu)
 // Also goto is a C quirk, I like those :)
 dispatch_end:
     cpu->pc++;
-    cpu->cycles++; // Counting cycles, Chekhov's Gun
+    cpu->inst_cycles++; // Counting cycles, Chekhov's Gun
+    
+    // Prescale time!
+    cpu->prescaler++;
+    
+    // Timer0 incrementing based on prescaler, adding 1 since prescaler 000 means 1:2
+    if (cpu->option & PSA == 0) {
+        if (cpu->timer0_inhibit > 0 && cpu->prescaler >= (1 << ((cpu->option & PS)+1))) {
+            cpu->prescaler = 0;
+            cpu->f[TMR0]++;
+        }
+        
+        // Inhibit timer0 for 2 cycles after write
+        if (cpu->timer0_inhibit > 0) {
+            cpu->timer0_inhibit--;
+            cpu->prescaler--; // Hack: Just decrement prescaler to pretend it didn't happen
+        }
+    }
+    // Same but for WDT (also we don't add 1 since prescaler 000 means 1:1)
+    else {
+        // 18,000 cycles per WDT timer increment (for a 1mhz instruction cycle rate)
+        if (cpu->prescaler >= (1 << ((cpu->option & PS)))*18000) {
+            cpu->prescaler = 0;
+            cpu->wdt++;
+            
+            // WDT timeout handling
+            // Just checking for overflow, which it will be here if it's zero :)
+            if (cpu->wdt == 0)
+                cpu_reset(cpu, RESET_WDT_NORMAL);
+        }
+    }
+    
     return;
 }
 
@@ -577,8 +610,18 @@ void inst_CLRWDT(CPU *cpu)
 {
     // Verbosity!
     if (cpu->verbose)
-        printf("[%03u] CLRWDT (NOT IMPLEMENTED YET!)\n", 
-                cpu->pc);
+        printf("[%03u] CLRWDT: wdt=%u\n", 
+                cpu->pc, cpu->wdt);
+    
+    // Clear timer!
+    cpu->wdt = 0;
+    
+    // And prescaler if assigned to it
+    if (cpu->option & PSA != 0)
+        cpu->prescaler = 0;
+    
+    // Status bits
+    cpu->f[STATUS] |= TO & PD;
 }
 
 void inst_GOTO(CPU *cpu, uint16_t k) // Two-Cycle
@@ -638,6 +681,10 @@ void inst_OPTION(CPU *cpu)
     
     // Store
     cpu->option = cpu->w;
+    
+    // Stuff that changes
+    // Namely, reset the prescaler just in case
+    cpu->prescaler = 0;
 }
 
 void inst_RETLW(CPU *cpu, uint8_t k)
@@ -663,6 +710,10 @@ void inst_SLEEP(CPU *cpu)
                 cpu->pc);
     
     // Might just do a POR for now until I figure out how I wanna do sleeps
+    
+    // Update 1: I might look into handling this once I have proper cycle-accurate execution,
+    //           that way I can have the CPU continue to run an exec loop but just do nothing during it.
+    //           Either that or I'll just have it trigger a breakpoint.
 }
 
 void inst_TRIS(CPU *cpu, uint8_t k)

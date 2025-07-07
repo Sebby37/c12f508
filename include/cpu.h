@@ -51,7 +51,7 @@ typedef struct CPU {
     uint16_t pc;
     uint16_t *inst;
     bool skipnext;
-    unsigned long cycles;
+    unsigned long inst_cycles;
     
     // (Call) Stack
     uint16_t *stack;
@@ -63,6 +63,12 @@ typedef struct CPU {
     uint8_t trisgpio;
     uint8_t option;
     uint16_t config;
+    
+    // Timer0 and WDT
+    // Using uint32_t for the prescaler, as it needs to go up to a max of 2,304,000 for a WDT prescaler of 1:128
+    uint32_t prescaler;
+    uint8_t timer0_inhibit;
+    uint8_t wdt;
 } CPU;
 
 // -structors

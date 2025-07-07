@@ -41,7 +41,7 @@
 #define TRIS  0x006 //0x0 // All 0 except first 3 bytes for f // Can only be 6 for the 12f508 anyways, since there's only one TRIS reg
 #define XORLW 0xF00 //0xF
 
-void decode_and_dispatch(CPU *cpu);
+void instruction_cycle(CPU *cpu); // I'd like to make this actually cycle-accurate at somepoint
 
 // Byte-level Instructions
 void inst_ADDWF(CPU *cpu, uint8_t f, uint8_t d);

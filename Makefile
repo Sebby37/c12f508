@@ -1,13 +1,21 @@
-all: main.c src/*.c include/*.h
-	gcc -Iinclude main.c src/*.c -o main
+CC = gcc
+CFLAGS = -Iinclude -std=c99
+SRC = src/*.c
+HEADERS = include/*.h
+MAIN = main.c
+OUTPUT = main
 
-tests: test_sleepled test_divide
+TESTS = test_sleepled test_divide
 
-test_sleepled: tests/test_sleepled.c src/*.c include/*.h
-	gcc -Iinclude tests/test_sleepled.c src/*.c -o tests/test_sleepled
+all: $(OUTPUT)
 
-test_divide: tests/test_divide.c src/*.c include/*.h
-	gcc -Iinclude tests/test_divide.c src/*.c -o tests/test_divide
+$(OUTPUT): $(MAIN) $(SRC) $(HEADERS)
+	$(CC) $(CFLAGS) $(MAIN) $(SRC) -o $(OUTPUT)
+
+tests: $(TESTS)
+
+$(TESTS): %: tests/%.c $(SRC) $(HEADERS)
+	$(CC) $(CFLAGS) $< $(SRC) -o tests/$@
 
 clean:
-	rm a.out
+	rm -f $(OUTPUT) tests/$(TESTS)

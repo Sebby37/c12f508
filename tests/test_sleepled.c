@@ -1,7 +1,7 @@
 #include <stdio.h>
 #include "cpu.h"
 
-int main() {
+int main(void) {
 	CPU cpu;
 	cpu_init(&cpu);
 	cpu.verbose = true;
@@ -31,8 +31,8 @@ int main() {
 	
 	for (int i = 0; i < 20; i++)
 	{
-		if (i == 10) cpu_setpin(&cpu, 0, true);
-		if (i == 20) cpu_setpin(&cpu, 0, false);
+		if (i == 10) cpu_writepins(&cpu, GP0, true);
+		if (i == 20) cpu_writepins(&cpu, GP0, false);
 		cpu_step(&cpu);
 	}
 	

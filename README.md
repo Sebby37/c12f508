@@ -16,6 +16,7 @@ see the todo just below for what (I think) needs to be done before it's fully fu
 - [ ] SLEEP instruction
 - [ ] Make it thread-safe!
 - [ ] Better makefile or even CMake
+- [ ] Make it cycle accurate (as in the whole 2-stage pipeline and 4-cycle fetch/execution)
 
 ## Future plans that maybe might just potentially happen
 - Full main program that can debug and such with a CLI interface
