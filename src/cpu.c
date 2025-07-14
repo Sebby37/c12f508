@@ -14,7 +14,6 @@ void cpu_init(CPU *cpu)
     cpu->inst_cycles = 0;
     
     cpu->stack = malloc(sizeof(uint16_t) * 2);
-    cpu->stack_ptr = 0;
     
     cpu->w = 0;
     cpu->f = malloc(sizeof(uint16_t) * 32);
@@ -49,7 +48,7 @@ void cpu_reset(CPU *cpu, int reset_condition)
 {
     if (cpu->verbose) {
         const char *reset_conditions[] = {"", "MCLR_NORMAL", "MCLR_SLEEP", "WDT_SLEEP", "WDT_NORMAL", "RESET_WAKE_PIN"};
-        printf("CPU Reset: %s\n", reset_conditions[reset_condition]);
+        printf("  RESET: %s\n", reset_conditions[reset_condition]);
     }
     
     cpu->pc = 0x1FF;

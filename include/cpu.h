@@ -62,7 +62,6 @@ typedef struct CPU {
     
     // (Call) Stack
     uint16_t *stack;
-    uint8_t stack_ptr;
     
     // Registers
     uint8_t w;

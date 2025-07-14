@@ -16,8 +16,11 @@ see the todo just below for what (I think) needs to be done before it's fully fu
 - [X] Proper pin IO functions
 - [X] SLEEP instruction + resets and such
 - [X] IO Callbacks
+- [X] Redo CALL/RETLW to make the behaviour actually accurate
+- [ ] Again, rewrite GPIO interface so its properly emulated and not just manual register crap (+ GPIO behaviour)
 - [ ] Make it thread-safe! (Likely using platform-specific mutexes on the GPIO)
 - [ ] Make it cycle accurate (as in the whole 2-stage pipeline and 4-cycle fetch/execution)
+- [ ] Figure out some sort of (OPTIONAL) way to make it run at 4mhz / 1us per instruction cycle / 0.25us per clock cycle
 
 ## Future plans that maybe might just potentially happen
 - Full main program that can debug and such with a CLI interface

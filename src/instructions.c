@@ -626,16 +626,17 @@ void inst_CALL(CPU *cpu, uint8_t k) // Two-Cycle
 {
     // Verbosity!
     if (cpu->verbose)
-        printf("[%03u] CALL: k(addr)=%u, stack_ptr=%u, stack[0]=%u, stack[1]=%u\n", 
-                cpu->pc, k, cpu->stack_ptr, cpu->stack[0], cpu->stack[1]);
+        printf("[%03u] CALL: k(addr)=%u, stack[0]=%u, stack[1]=%u\n", 
+                cpu->pc, k, cpu->stack[0], cpu->stack[1]);
     
     // Push return addr onto stack
-    cpu->stack[cpu->stack_ptr & 0x1] = cpu->pc+1;
-    cpu->stack_ptr = (cpu->stack_ptr + 1) & 0x1;
+    cpu->stack[1] = cpu->stack[0];
+    cpu->stack[0] = cpu->pc+1;
     
     // Call
-    cpu->pc = ((cpu->f[STATUS] & 0x60) << 4) | k; // PC<10:9> = STATUS<6:5>, PC<8> = 0, PC<7:0> = k
-    cpu->pc--;
+    // PC<10:9> = STATUS<6:5>, PC<8> = 0, PC<7:0> = k
+    cpu->pc = ((cpu->f[STATUS] & 0x60) << 4) | k;
+    cpu->pc--; // ONLY because PC is auto incremented later, will probably remove once cycle accuracy is done
 }
 
 void inst_CLRWDT(CPU *cpu)
@@ -663,16 +664,11 @@ void inst_GOTO(CPU *cpu, uint16_t k) // Two-Cycle
         printf("[%03u] GOTO: k=%u\n", 
                 cpu->pc, k);
     
-    // Set PC<10:9> to STATUS<6:5>
-    cpu->pc &= ~0x600;
-    cpu->pc |= (cpu->f[STATUS] & 0x60) << 4;
-    
-    // Set PC<8:0> to k
-    cpu->pc &= ~0x1FF;
-    cpu->pc |= k & 0x1FF;
+    // PC<10:9> = STATUS<6:5>, PC<8:0> = k
+    cpu->pc = ((cpu->f[STATUS] & 0x60) << 4) | (k & 0x1FF);
     
     // Take it back now y'all
-    cpu->pc--;
+    cpu->pc--; // ONLY because PC is auto incremented later, will probably remove once cycle accuracy is done
 }
 
 void inst_IORLW(CPU *cpu, uint8_t k)
@@ -723,15 +719,15 @@ void inst_RETLW(CPU *cpu, uint8_t k)
 {
     // Verbosity!
     if (cpu->verbose)
-        printf("[%03u] RETLW: k(new w)=%u, TOS=%u, stack_ptr=%u, stack[0]=%u, stack[1]=%u\n", 
-                cpu->pc, k, cpu->stack[cpu->stack_ptr-1 & 0x1], cpu->stack_ptr, cpu->stack[0], cpu->stack[1]);
+        printf("[%03u] RETLW: k(new w)=%u, stack[0]=%u, stack[1]=%u\n", 
+                cpu->pc, k, cpu->stack[0], cpu->stack[1]);
     
     // Literally
     cpu->w = k;
     
     // Pop off stack
-    cpu->pc = cpu->stack[cpu->stack_ptr-1 & 0x1] - 1;
-    cpu->stack_ptr--;
+    cpu->pc = cpu->stack[0] - 1; // ONLY because PC is auto incremented later, will probably remove once cycle accuracy is done
+    cpu->stack[0] = cpu->stack[1];
 }
 
 void inst_SLEEP(CPU *cpu)
